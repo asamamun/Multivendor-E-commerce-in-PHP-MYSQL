@@ -1,0 +1,33 @@
+/multivendor-ecommerce/
+├── assets/
+│   ├── css/               # Custom styles
+│   ├── js/                # Vanilla JS helpers
+│   └── uploads/           # Product images
+├── includes/
+│   ├── db.php             # DB connection (PDO)
+│   ├── auth.php           # Auth functions
+│   ├── helpers.php        # Utility functions
+│   └── config.php         # App constants (e.g., base URL)
+├── public/
+│   ├── index.php          # Homepage
+│   ├── login.php
+│   ├── register.php
+│   ├── shop.php
+│   ├── product.php
+│   └── cart.php
+├── customer/
+│   ├── dashboard.php
+│   ├── orders.php
+│   └── profile.php
+├── vendor/
+│   ├── dashboard.php
+│   ├── products.php
+│   ├── add_product.php
+│   └── orders.php
+├── admin/
+│   ├── dashboard.php
+│   ├── manage_vendors.php
+│   ├── manage_products.php
+│   └── categories.php
+├── composer.json
+└── .htaccess              # For clean URLs (optional)
