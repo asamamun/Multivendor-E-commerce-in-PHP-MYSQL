@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 10, 2026 at 07:00 PM
+-- Generation Time: Jan 11, 2026 at 04:50 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,20 @@ SET time_zone = "+00:00";
 --
 -- Database: `mul_ven_ec_68`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `brands`
+--
+
+CREATE TABLE `brands` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -196,6 +210,7 @@ CREATE TABLE `products` (
   `id` int(11) NOT NULL,
   `vendor_id` int(11) NOT NULL,
   `category_id` int(11) NOT NULL,
+  `brand_id` int(11) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
@@ -319,6 +334,13 @@ CREATE TABLE `vendor_profiles` (
 --
 
 --
+-- Indexes for table `brands`
+--
+ALTER TABLE `brands`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
 -- Indexes for table `carts`
 --
 ALTER TABLE `carts`
@@ -393,7 +415,8 @@ ALTER TABLE `products`
   ADD UNIQUE KEY `sku` (`sku`),
   ADD KEY `idx_vendor_status` (`vendor_id`,`status`),
   ADD KEY `idx_category_status` (`category_id`,`status`),
-  ADD KEY `idx_featured` (`featured`,`status`);
+  ADD KEY `idx_featured` (`featured`,`status`),
+  ADD KEY `products_ibfk_3` (`brand_id`);
 
 --
 -- Indexes for table `product_images`
@@ -435,6 +458,12 @@ ALTER TABLE `vendor_profiles`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `brands`
+--
+ALTER TABLE `brands`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `carts`
@@ -575,7 +604,8 @@ ALTER TABLE `payments`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
+  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
+  ADD CONSTRAINT `products_ibfk_3` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `product_images`
