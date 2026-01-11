@@ -1,5 +1,7 @@
 <?php
-session_start();
+if(session_status() == PHP_SESSION_NONE){
+    session_start();
+}
 if(isset($_POST['register'])){
     //get db connection
     include_once 'db/db.php';
@@ -235,7 +237,7 @@ if(isset($_POST['register'])){
                             <!-- Login Link -->
                             <div class="text-center">
                                 <p class="mb-0">Already have an account? 
-                                    <a href="login.html" class="text-decoration-none fw-semibold">Sign in here</a>
+                                    <a href="login.php" class="text-decoration-none fw-semibold">Sign in here</a>
                                 </p>
                             </div>
                         </div>

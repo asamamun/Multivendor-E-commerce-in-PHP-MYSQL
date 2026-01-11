@@ -1,0 +1,420 @@
+<?php
+if(session_status() == PHP_SESSION_NONE){
+    session_start();
+}
+require "inc/cookie.php";
+require "db/db.php";
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - MarketPlace</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <?php include "inc/navbar.php"; ?>
+
+    <!-- Shop Content -->
+    <div class="container my-4">
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="filter-sidebar p-3">
+                    <h5 class="mb-3">
+                        <i class="fas fa-filter me-2 text-primary"></i>Filters
+                    </h5>
+
+                    <!-- Categories -->
+                    <div class="filter-section">
+                        <h6 class="fw-semibold">Categories</h6>
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
+                                <i class="fas fa-laptop me-2"></i>Electronics
+                                <span class="badge bg-light text-dark ms-auto">245</span>
+                            </a>
+                            <div class="ms-3">
+                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-1 small">
+                                    Laptops & Computers
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-1 small">
+                                    Mobile Phones
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-1 small">
+                                    Audio & Headphones
+                                </a>
+                            </div>
+                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
+                                <i class="fas fa-tshirt me-2"></i>Fashion
+                                <span class="badge bg-light text-dark ms-auto">189</span>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
+                                <i class="fas fa-home me-2"></i>Home & Garden
+                                <span class="badge bg-light text-dark ms-auto">156</span>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
+                                <i class="fas fa-gamepad me-2"></i>Sports & Games
+                                <span class="badge bg-light text-dark ms-auto">98</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="filter-section">
+                        <h6 class="fw-semibold">Price Range</h6>
+                        <div class="mb-3">
+                            <label for="priceRange" class="form-label">$0 - $1000</label>
+                            <input type="range" class="form-range" id="priceRange" min="0" max="1000" value="500">
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control form-control-sm" placeholder="Min" value="0">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control form-control-sm" placeholder="Max" value="1000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Brands -->
+                    <div class="filter-section">
+                        <h6 class="fw-semibold">Brands</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="apple">
+                            <label class="form-check-label" for="apple">Apple (45)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="samsung">
+                            <label class="form-check-label" for="samsung">Samsung (38)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sony">
+                            <label class="form-check-label" for="sony">Sony (29)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="nike">
+                            <label class="form-check-label" for="nike">Nike (67)</label>
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="filter-section">
+                        <h6 class="fw-semibold">Customer Rating</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rating5">
+                            <label class="form-check-label" for="rating5">
+                                <div class="text-warning">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rating4">
+                            <label class="form-check-label" for="rating4">
+                                <div class="text-warning">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                    & Up
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rating3">
+                            <label class="form-check-label" for="rating3">
+                                <div class="text-warning">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                                    & Up
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-primary w-100 mt-3">
+                        <i class="fas fa-times me-2"></i>Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9">
+                <!-- Sort and View Options -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="mb-1">All Products</h4>
+                        <p class="text-muted mb-0">Showing 1-12 of 245 results</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>Sort by: Popularity</option>
+                            <option>Price: Low to High</option>
+                            <option>Price: High to Low</option>
+                            <option>Customer Rating</option>
+                            <option>Newest First</option>
+                        </select>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="row g-4">
+                    <!-- Product 1 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Wireless+Headphones" class="card-img-top" alt="Product">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-light btn-sm rounded-circle">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-danger">-20%</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Premium Wireless Headphones</h6>
+                                <p class="text-muted small mb-2">TechVendor</p>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                    <small class="text-muted">(124 reviews)</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="h6 text-primary mb-0">$89.99</span>
+                                        <small class="text-muted text-decoration-line-through ms-2">$112.49</small>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Smart+Watch" class="card-img-top" alt="Product">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-light btn-sm rounded-circle">
+                                        <i class="fas fa-heart text-danger"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Smart Fitness Watch</h6>
+                                <p class="text-muted small mb-2">GadgetStore</p>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <small class="text-muted">(89 reviews)</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h6 text-primary mb-0">$199.99</span>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Laptop+Backpack" class="card-img-top" alt="Product">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-light btn-sm rounded-circle">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-success">New</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Professional Laptop Backpack</h6>
+                                <p class="text-muted small mb-2">BagWorld</p>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                    <small class="text-muted">(67 reviews)</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h6 text-primary mb-0">$49.99</span>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repeat similar products... -->
+                    <!-- Product 4 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Gaming+Mouse" class="card-img-top" alt="Product">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-light btn-sm rounded-circle">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">RGB Gaming Mouse</h6>
+                                <p class="text-muted small mb-2">GameGear</p>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <small class="text-muted">(156 reviews)</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h6 text-primary mb-0">$79.99</span>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 5 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Bluetooth+Speaker" class="card-img-top" alt="Product">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-light btn-sm rounded-circle">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-warning">Hot</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Portable Bluetooth Speaker</h6>
+                                <p class="text-muted small mb-2">AudioTech</p>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                    <small class="text-muted">(203 reviews)</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h6 text-primary mb-0">$129.99</span>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 6 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Wireless+Charger" class="card-img-top" alt="Product">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-light btn-sm rounded-circle">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">Fast Wireless Charger</h6>
+                                <p class="text-muted small mb-2">ChargeTech</p>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                    <small class="text-muted">(91 reviews)</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h6 text-primary mb-0">$39.99</span>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="#">21</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

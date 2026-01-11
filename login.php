@@ -1,21 +1,9 @@
 <?php
-session_start();
-require "db/db.php";
-//if user has cookies set, login automatically
-if(isset($_COOKIE['user_id']) && isset($_COOKIE['user_name']) && isset($_COOKIE['user_email']) && isset($_COOKIE['user_role'])){
-    $_SESSION['user_id'] = $_COOKIE['user_id'];
-    $_SESSION['user_name'] = $_COOKIE['user_name'];
-    $_SESSION['user_email'] = $_COOKIE['user_email'];
-    $_SESSION['user_role'] = $_COOKIE['user_role'];
-    if($_SESSION['user_role'] == 'customer'){
-        header("Location: index.php");
-        exit;
-    }
-    if($_SESSION['user_role'] == 'vendor'){
-        header("Location: vendor/dashboard.php");
-        exit;
-    }    
+if(session_status() == PHP_SESSION_NONE){
+    session_start();
 }
+require "db/db.php";
+
 //if user has submitted login form
 if(isset($_POST['login'])){
     $email = $_POST['email'];
@@ -169,7 +157,7 @@ if(isset($_POST['login'])){
                             <!-- Register Link -->
                             <div class="text-center">
                                 <p class="mb-0">Don't have an account? 
-                                    <a href="register.html" class="text-decoration-none fw-semibold">Create one here</a>
+                                    <a href="register.php" class="text-decoration-none fw-semibold">Create one here</a>
                                 </p>
                             </div>
                         </div>
