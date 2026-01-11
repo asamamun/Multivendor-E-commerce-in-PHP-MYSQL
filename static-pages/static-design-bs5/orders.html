@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - MarketPlace</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="index.html">
+                <i class="fas fa-store me-2"></i>MarketPlace
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="mx-auto d-flex search-container">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search products...">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="cart.html">
+                            <i class="fas fa-shopping-cart fs-5"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fs-5"></i> John Doe
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><a class="dropdown-item active" href="orders.html">My Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="login.html">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Orders Content -->
+    <div class="container my-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="profile-sidebar p-3">
+                    <div class="text-center mb-4">
+                        <img src="https://via.placeholder.com/80x80/6c63ff/ffffff?text=JD" 
+                             class="rounded-circle mb-2" width="80" height="80" alt="Profile">
+                        <h6 class="mb-1">John Doe</h6>
+                        <p class="text-muted small">john.doe@email.com</p>
+                    </div>
+
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="profile.html">
+                            <i class="fas fa-user me-2"></i>Profile Information
+                        </a>
+                        <a class="nav-link active" href="orders.html">
+                            <i class="fas fa-shopping-bag me-2"></i>My Orders
+                        </a>
+                        <a class="nav-link" href="profile.html#addresses">
+                            <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                        </a>
+                        <a class="nav-link" href="profile.html#notifications">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                        </a>
+                        <hr>
+                        <a class="nav-link text-danger" href="login.html">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-shopping-bag me-2 text-primary"></i>My Orders
+                    </h2>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>All Orders</option>
+                            <option>Pending</option>
+                            <option>Shipped</option>
+                            <option>Delivered</option>
+                            <option>Cancelled</option>
+                        </select>
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>Last 6 months</option>
+                            <option>Last 30 days</option>
+                            <option>Last year</option>
+                            <option>All time</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Order Cards -->
+                <div class="row g-4">
+                    <!-- Order 1 -->
+                    <div class="col-12">
+                        <div class="order-card p-4">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Order #MP-2024-001</h5>
+                                            <p class="text-muted mb-0">Placed on January 8, 2024</p>
+                                        </div>
+                                        <span class="badge badge-delivered fs-6">Delivered</span>
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/60x60/f8f9fa/6c757d?text=HP" 
+                                                     class="rounded me-3" width="60" height="60" alt="Product">
+                                                <div>
+                                                    <h6 class="mb-1">Premium Wireless Headphones</h6>
+                                                    <small class="text-muted">Qty: 1</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/60x60/f8f9fa/6c757d?text=SW" 
+                                                     class="rounded me-3" width="60" height="60" alt="Product">
+                                                <div>
+                                                    <h6 class="mb-1">Smart Fitness Watch</h6>
+                                                    <small class="text-muted">Qty: 1</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted">+1 more item</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                                    <div class="mb-3">
+                                        <div class="h5 text-primary mb-1">$464.36</div>
+                                        <small class="text-muted">3 items</small>
+                                    </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="viewOrder('MP-2024-001')">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </button>
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-redo me-1"></i>Reorder
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order 2 -->
+                    <div class="col-12">
+                        <div class="order-card p-4">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Order #MP-2024-002</h5>
+                                            <p class="text-muted mb-0">Placed on January 10, 2024</p>
+                                        </div>
+                                        <span class="badge badge-shipped fs-6">Shipped</span>
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/60x60/f8f9fa/6c757d?text=GM" 
+                                                     class="rounded me-3" width="60" height="60" alt="Product">
+                                                <div>
+                                                    <h6 class="mb-1">RGB Gaming Mouse</h6>
+                                                    <small class="text-muted">Qty: 1</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="text-success small">
+                                                <i class="fas fa-truck me-1"></i>
+                                                Expected delivery: Jan 12, 2024
+                                            </div>
+                                            <div class="text-muted small">
+                                                Tracking: <a href="#" class="text-decoration-none">1Z999AA1234567890</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                                    <div class="mb-3">
+                                        <div class="h5 text-primary mb-1">$79.99</div>
+                                        <small class="text-muted">1 item</small>
+                                    </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-truck me-1"></i>Track Package
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="viewOrder('MP-2024-002')">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order 3 -->
+                    <div class="col-12">
+                        <div class="order-card p-4">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Order #MP-2024-003</h5>
+                                            <p class="text-muted mb-0">Placed on January 11, 2024</p>
+                                        </div>
+                                        <span class="badge badge-pending fs-6">Processing</span>
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/60x60/f8f9fa/6c757d?text=BS" 
+                                                     class="rounded me-3" width="60" height="60" alt="Product">
+                                                <div>
+                                                    <h6 class="mb-1">Bluetooth Speaker</h6>
+                                                    <small class="text-muted">Qty: 1</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/60x60/f8f9fa/6c757d?text=WC" 
+                                                     class="rounded me-3" width="60" height="60" alt="Product">
+                                                <div>
+                                                    <h6 class="mb-1">Wireless Charger</h6>
+                                                    <small class="text-muted">Qty: 2</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-warning small">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Processing - Ships in 1-2 days
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                                    <div class="mb-3">
+                                        <div class="h5 text-primary mb-1">$209.97</div>
+                                        <small class="text-muted">3 items</small>
+                                    </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-times me-1"></i>Cancel
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="viewOrder('MP-2024-003')">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order 4 -->
+                    <div class="col-12">
+                        <div class="order-card p-4">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Order #MP-2023-045</h5>
+                                            <p class="text-muted mb-0">Placed on December 15, 2023</p>
+                                        </div>
+                                        <span class="badge badge-cancelled fs-6">Cancelled</span>
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/60x60/f8f9fa/6c757d?text=PC" 
+                                                     class="rounded me-3" width="60" height="60" alt="Product">
+                                                <div>
+                                                    <h6 class="mb-1">Premium Phone Case</h6>
+                                                    <small class="text-muted">Qty: 1</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="text-muted small">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Cancelled by customer
+                                            </div>
+                                            <div class="text-success small">
+                                                Refund processed: $24.99
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                                    <div class="mb-3">
+                                        <div class="h5 text-muted mb-1">$24.99</div>
+                                        <small class="text-muted">1 item</small>
+                                    </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-redo me-1"></i>Buy Again
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="viewOrder('MP-2023-045')">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderDetailsContent">
+                        <!-- Order details will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Download Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function viewOrder(orderId) {
+            // Sample order details - in a real app, this would fetch from API
+            const orderDetails = {
+                'MP-2024-001': {
+                    id: 'MP-2024-001',
+                    date: 'January 8, 2024',
+                    status: 'Delivered',
+                    total: '$464.36',
+                    items: [
+                        { name: 'Premium Wireless Headphones', price: '$89.99', qty: 2 },
+                        { name: 'Smart Fitness Watch', price: '$199.99', qty: 1 },
+                        { name: 'Professional Laptop Backpack', price: '$49.99', qty: 1 }
+                    ],
+                    shipping: {
+                        address: '123 Main Street, Apt 4B, New York, NY 10001',
+                        method: 'Standard Shipping (Free)'
+                    }
+                },
+                'MP-2024-002': {
+                    id: 'MP-2024-002',
+                    date: 'January 10, 2024',
+                    status: 'Shipped',
+                    total: '$79.99',
+                    items: [
+                        { name: 'RGB Gaming Mouse', price: '$79.99', qty: 1 }
+                    ],
+                    shipping: {
+                        address: '123 Main Street, Apt 4B, New York, NY 10001',
+                        method: 'Standard Shipping (Free)',
+                        tracking: '1Z999AA1234567890'
+                    }
+                },
+                'MP-2024-003': {
+                    id: 'MP-2024-003',
+                    date: 'January 11, 2024',
+                    status: 'Processing',
+                    total: '$209.97',
+                    items: [
+                        { name: 'Bluetooth Speaker', price: '$129.99', qty: 1 },
+                        { name: 'Wireless Charger', price: '$39.99', qty: 2 }
+                    ],
+                    shipping: {
+                        address: '123 Main Street, Apt 4B, New York, NY 10001',
+                        method: 'Standard Shipping (Free)'
+                    }
+                },
+                'MP-2023-045': {
+                    id: 'MP-2023-045',
+                    date: 'December 15, 2023',
+                    status: 'Cancelled',
+                    total: '$24.99',
+                    items: [
+                        { name: 'Premium Phone Case', price: '$24.99', qty: 1 }
+                    ],
+                    shipping: {
+                        address: '123 Main Street, Apt 4B, New York, NY 10001',
+                        method: 'Standard Shipping (Free)'
+                    }
+                }
+            };
+
+            const order = orderDetails[orderId];
+            if (!order) return;
+
+            const statusClass = {
+                'Delivered': 'badge-delivered',
+                'Shipped': 'badge-shipped',
+                'Processing': 'badge-pending',
+                'Cancelled': 'badge-cancelled'
+            };
+
+            let itemsHtml = '';
+            order.items.forEach(item => {
+                itemsHtml += `
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <h6 class="mb-1">${item.name}</h6>
+                            <small class="text-muted">Qty: ${item.qty}</small>
+                        </div>
+                        <span class="fw-bold">${item.price}</span>
+                    </div>
+                `;
+            });
+
+            const trackingHtml = order.shipping.tracking ? 
+                `<p><strong>Tracking Number:</strong> ${order.shipping.tracking}</p>` : '';
+
+            const content = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Order Information</h6>
+                        <p><strong>Order ID:</strong> ${order.id}</p>
+                        <p><strong>Date:</strong> ${order.date}</p>
+                        <p><strong>Status:</strong> <span class="badge ${statusClass[order.status]} ms-2">${order.status}</span></p>
+                        <p><strong>Total:</strong> ${order.total}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Shipping Information</h6>
+                        <p><strong>Address:</strong><br>${order.shipping.address}</p>
+                        <p><strong>Method:</strong> ${order.shipping.method}</p>
+                        ${trackingHtml}
+                    </div>
+                </div>
+                <hr>
+                <h6>Order Items</h6>
+                ${itemsHtml}
+            `;
+
+            document.getElementById('orderDetailsContent').innerHTML = content;
+            new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
+        }
+    </script>
+</body>
+</html>
