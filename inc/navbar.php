@@ -35,6 +35,24 @@
                             <i class="fas fa-user-circle fs-5"></i>
                         </a>
                         <ul class="dropdown-menu">
+                            <!-- show dashboard link only if user is logged in and the user is admin or seller . admin will go to admin dashboard and seller will go to vendor dashboard-->
+                            <?php
+                                if(isset($_SESSION['user_id'])){
+                                    if($_SESSION['user_role'] == 'admin'){
+                                        ?>
+                                            <li><a class="dropdown-item" href="admin/">Dashboard</a></li>
+                                        <?php
+                                    }
+                                    else if($_SESSION['user_role'] == 'vendor'){
+                                        ?>
+                                            <li><a class="dropdown-item" href="vendor/">Dashboard</a></li>
+                                        <?php
+                                    }
+                                    else{
+
+                                    }
+                                }
+                            ?>
                             <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
                             <li><a class="dropdown-item" href="orders.php">My Orders</a></li>
                             <li><hr class="dropdown-divider"></li>

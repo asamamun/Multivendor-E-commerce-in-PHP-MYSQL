@@ -3,6 +3,16 @@ if(session_status() == PHP_SESSION_NONE){
     session_start();
 }
 
+// Include database connection
+include_once "db/db.php";
+
+// Fetch active categories with images (limit to top 10)
+$categories_sql = "SELECT id, name, slug, description, image FROM categories WHERE status = 'active' AND image IS NOT NULL ORDER BY sort_order ASC, name ASC LIMIT 10";
+$categories_result = $conn->query($categories_sql);
+$categories = [];
+while ($row = $categories_result->fetch_assoc()) {
+    $categories[] = $row;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +32,10 @@ if(session_status() == PHP_SESSION_NONE){
     
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Owl Carousel CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -56,13 +70,40 @@ if(session_status() == PHP_SESSION_NONE){
     <section class="py-5">
         <div class="container">
             <h2 class="text-center mb-5" data-aos="fade-up">Shop by Categories</h2>
+            
+            <?php if (!empty($categories)): ?>
+            <div class="categories-carousel owl-carousel owl-theme" data-aos="fade-up" data-aos-delay="200">
+                <?php foreach ($categories as $category): ?>
+                <div class="item">
+                    <div class="category-card text-center p-4 rounded shadow-sm h-100">
+                        <?php if ($category['image']): ?>
+                            <div class="category-image mb-3">
+                                <img src="<?php echo htmlspecialchars($category['image']); ?>" 
+                                     alt="<?php echo htmlspecialchars($category['name']); ?>" 
+                                     class="img-fluid rounded-circle" 
+                                     style="width: 80px; height: 80px; object-fit: cover;">
+                            </div>
+                        <?php else: ?>
+                            <i class="fas fa-tag fs-1 text-primary mb-3"></i>
+                        <?php endif; ?>
+                        <h5><?php echo htmlspecialchars($category['name']); ?></h5>
+                        <?php if ($category['description']): ?>
+                            <p class="text-muted"><?php echo htmlspecialchars($category['description']); ?></p>
+                        <?php endif; ?>
+                        <a href="shop.php?category=<?php echo urlencode($category['slug']); ?>" class="btn btn-outline-primary">Browse</a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+            <!-- Fallback static categories if no categories in database -->
             <div class="row g-4">
                 <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
                     <div class="category-card text-center p-4 rounded shadow-sm h-100">
                         <i class="fas fa-laptop fs-1 text-primary mb-3"></i>
                         <h5>Electronics</h5>
                         <p class="text-muted">Laptops, Phones, Gadgets</p>
-                        <a href="shop.html" class="btn btn-outline-primary">Browse</a>
+                        <a href="shop.php" class="btn btn-outline-primary">Browse</a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
@@ -70,7 +111,7 @@ if(session_status() == PHP_SESSION_NONE){
                         <i class="fas fa-tshirt fs-1 text-primary mb-3"></i>
                         <h5>Fashion</h5>
                         <p class="text-muted">Clothing, Shoes, Accessories</p>
-                        <a href="shop.html" class="btn btn-outline-primary">Browse</a>
+                        <a href="shop.php" class="btn btn-outline-primary">Browse</a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
@@ -78,7 +119,7 @@ if(session_status() == PHP_SESSION_NONE){
                         <i class="fas fa-home fs-1 text-primary mb-3"></i>
                         <h5>Home & Garden</h5>
                         <p class="text-muted">Furniture, Decor, Tools</p>
-                        <a href="shop.html" class="btn btn-outline-primary">Browse</a>
+                        <a href="shop.php" class="btn btn-outline-primary">Browse</a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
@@ -86,10 +127,11 @@ if(session_status() == PHP_SESSION_NONE){
                         <i class="fas fa-gamepad fs-1 text-primary mb-3"></i>
                         <h5>Sports & Games</h5>
                         <p class="text-muted">Equipment, Toys, Games</p>
-                        <a href="shop.html" class="btn btn-outline-primary">Browse</a>
+                        <a href="shop.php" class="btn btn-outline-primary">Browse</a>
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -277,12 +319,53 @@ if(session_status() == PHP_SESSION_NONE){
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- jQuery (required for Owl Carousel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <!-- Owl Carousel JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    
     <!-- AOS Animation -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({
             duration: 800,
             once: true
+        });
+        
+        // Initialize Categories Carousel
+        $(document).ready(function(){
+            $('.categories-carousel').owlCarousel({
+                loop: true,
+                margin: 20,
+                nav: true,
+                dots: true,
+                autoplay: true,
+                autoplayTimeout: 3000,
+                autoplayHoverPause: true,
+                navText: [
+                    '<i class="fas fa-chevron-left"></i>',
+                    '<i class="fas fa-chevron-right"></i>'
+                ],
+                responsive: {
+                    0: {
+                        items: 1,
+                        nav: false
+                    },
+                    576: {
+                        items: 2
+                    },
+                    768: {
+                        items: 3
+                    },
+                    992: {
+                        items: 4
+                    },
+                    1200: {
+                        items: 5
+                    }
+                }
+            });
         });
     </script>
 </body>

@@ -51,6 +51,82 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
 }
 
+.category-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.category-image img {
+    border: 3px solid #f8f9fa;
+    transition: all 0.3s ease;
+    display: block !important;
+    margin: 0 auto !important;
+}
+
+.category-card:hover .category-image img {
+    border-color: #6c63ff;
+}
+
+/* Ensure the carousel item centers content */
+.categories-carousel .item {
+    padding: 0 10px;
+    text-align: center;
+}
+
+.categories-carousel .category-card {
+    text-align: center;
+}
+
+/* Categories Carousel */
+.categories-carousel .owl-nav {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.categories-carousel .owl-nav button {
+    background: #6c63ff !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 0 5px !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+}
+
+.categories-carousel .owl-nav button:hover {
+    background: #5a52d5 !important;
+    transform: scale(1.1) !important;
+}
+
+.categories-carousel .owl-dots {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.categories-carousel .owl-dot {
+    display: inline-block;
+    margin: 0 5px;
+}
+
+.categories-carousel .owl-dot span {
+    width: 10px;
+    height: 10px;
+    background: #dee2e6;
+    border-radius: 50%;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.categories-carousel .owl-dot.active span,
+.categories-carousel .owl-dot:hover span {
+    background: #6c63ff;
+    transform: scale(1.2);
+}
+
 /* Product Cards */
 .product-card {
     border: 1px solid #e9ecef;

@@ -2,6 +2,23 @@
 if(session_status() == PHP_SESSION_NONE){
     session_start();
 }
+//if session has login info, redirect to index or vendor or admin page
+if(isset($_SESSION['user_id'])){
+    if($_SESSION['user_role'] == 'customer'){
+        header("Location: index.php");
+        exit;
+    }
+    if($_SESSION['user_role'] == 'vendor'){
+        header("Location: vendor/");
+        exit;
+    }
+    if($_SESSION['user_role'] == 'admin'){
+        header("Location: admin/");
+        exit;
+    }
+}
+
+require "inc/cookie.php";
 require "db/db.php";
 
 //if user has submitted login form
@@ -21,21 +38,28 @@ if(isset($_POST['login'])){
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_role'] = $user['role'];
             if($remember){
-                setcookie('user_id', $user['id'], time() + (86400 * 30), "/");
-                setcookie('user_name', $user['name'], time() + (86400 * 30), "/");
-                setcookie('user_email', $user['email'], time() + (86400 * 30), "/");
-                setcookie('user_role', $user['role'], time() + (86400 * 30), "/");
+                // Set cookies with proper domain, path, and security settings
+                setcookie('user_id', $user['id'], time() + (86400 * 30), "/", '', false, true);
+                setcookie('user_name', $user['name'], time() + (86400 * 30), "/", '', false, true);
+                setcookie('user_email', $user['email'], time() + (86400 * 30), "/", '', false, true);
+                setcookie('user_role', $user['role'], time() + (86400 * 30), "/", '', false, true);
             }
+            // Only redirect after setting cookies
             if($user['role'] == 'customer'){
                 header("Location: index.php");
                 exit;
             }
             if($user['role'] == 'vendor'){
-                header("Location: vendor/dashboard.php");
+                // Check if vendor directory exists, otherwise redirect to index
+                if(is_dir('vendor/')) {
+                    header("Location: vendor/");
+                } else {
+                    header("Location: index.php");
+                }
                 exit;
             }
             if($user['role'] == 'admin'){
-                header("Location: admin/dashboard.php");
+                header("Location: admin/");
                 exit;
             }
             
