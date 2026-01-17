@@ -53,7 +53,17 @@
                                     }
                                 }
                             ?>
-                            <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
+                            <?php
+                            //if user id vendor profile like will be vendor/profile.php                            
+                            if(isset($_SESSION['user_id']) && $_SESSION['user_role'] == 'vendor'){ ?>
+                                <li><a class="dropdown-item" href="vendor/profile.php">My Profile</a></li>
+                            <?php } ?>
+                            <?php
+                            //if user id vendor profile like will be vendor/profile.php                            
+                            if(isset($_SESSION['user_id']) && $_SESSION['user_role'] == 'customer'){ ?>
+                                <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
+                            <?php } ?>
+                            
                             <li><a class="dropdown-item" href="orders.php">My Orders</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <?php

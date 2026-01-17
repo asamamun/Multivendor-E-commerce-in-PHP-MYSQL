@@ -7,12 +7,14 @@ if(session_status() == PHP_SESSION_NONE){
 include_once "db/db.php";
 
 // Fetch active categories with images (limit to top 10)
-$categories_sql = "SELECT id, name, slug, description, image FROM categories WHERE status = 'active' AND image IS NOT NULL ORDER BY sort_order ASC, name ASC LIMIT 10";
+$categories_sql = "SELECT id, name, description, slug, image FROM categories where status='active' ";
 $categories_result = $conn->query($categories_sql);
 $categories = [];
 while ($row = $categories_result->fetch_assoc()) {
     $categories[] = $row;
 }
+/* var_dump($categories);
+exit; */
 ?>
 <!DOCTYPE html>
 <html lang="en">

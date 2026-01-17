@@ -4,6 +4,52 @@ if(session_status() == PHP_SESSION_NONE){
 }
 require "inc/cookie.php";
 require "db/db.php";
+
+// Fetch categories from database
+$categories_sql = "SELECT c1.id, c1.name, c1.slug, c1.parent_id, 
+                  (SELECT COUNT(*) FROM products p WHERE p.category_id = c1.id) as product_count,
+                  (SELECT GROUP_CONCAT(c2.id) FROM categories c2 WHERE c2.parent_id = c1.id) as child_ids
+                  FROM categories c1 
+                  WHERE c1.status = 'active' AND c1.parent_id IS NULL
+                  ORDER BY c1.sort_order ASC, c1.name ASC";
+$categories_result = $conn->query($categories_sql);
+$categories_array = [];
+while($row = $categories_result->fetch_assoc()) {
+    $categories_array[] = $row;
+}
+$categories_result->data_seek(0); // Reset pointer for display
+
+// Get current page and category from URL parameters
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$category_filter = isset($_GET['category']) ? (int)$_GET['category'] : 0;
+$limit = 12;
+$offset = ($page - 1) * $limit;
+
+// Build the base query with optional category filter
+$where_clause = "";
+if($category_filter > 0) {
+    $where_clause = "WHERE p.category_id = $category_filter";
+} else {
+    $where_clause = "WHERE 1=1"; // Include all products when no category filter
+}
+
+// Count total products for pagination
+$count_sql = "SELECT COUNT(*) as total FROM products p $where_clause";
+$count_result = $conn->query($count_sql);
+$total_products = $count_result->fetch_assoc()['total'];
+$total_pages = ceil($total_products / $limit);
+
+// Fetch products for current page
+$products_sql = "SELECT p.*, c.name as category_name, 
+                 (SELECT image_path FROM product_images WHERE product_id = p.id LIMIT 1) as primary_image,
+                 (SELECT COUNT(*) FROM reviews WHERE product_id = p.id) as review_count,
+                 (SELECT AVG(rating) FROM reviews WHERE product_id = p.id) as avg_rating
+                 FROM products p
+                 LEFT JOIN categories c ON p.category_id = c.id
+                 $where_clause
+                 ORDER BY p.created_at DESC
+                 LIMIT $limit OFFSET $offset";
+$products_result = $conn->query($products_sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,33 +88,12 @@ require "db/db.php";
                     <div class="filter-section">
                         <h6 class="fw-semibold">Categories</h6>
                         <div class="list-group list-group-flush">
-                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
-                                <i class="fas fa-laptop me-2"></i>Electronics
-                                <span class="badge bg-light text-dark ms-auto">245</span>
+                            <?php foreach($categories_array as $category): ?>
+                            <a href="?category=<?php echo $category['id']; ?>&page=1" class="list-group-item list-group-item-action border-0 px-0">
+                                <i class="fas fa-tag me-2"></i><?php echo htmlspecialchars($category['name']); ?>
+                                <span class="badge bg-light text-dark ms-auto"><?php echo $category['product_count']; ?></span>
                             </a>
-                            <div class="ms-3">
-                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-1 small">
-                                    Laptops & Computers
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-1 small">
-                                    Mobile Phones
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-1 small">
-                                    Audio & Headphones
-                                </a>
-                            </div>
-                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
-                                <i class="fas fa-tshirt me-2"></i>Fashion
-                                <span class="badge bg-light text-dark ms-auto">189</span>
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
-                                <i class="fas fa-home me-2"></i>Home & Garden
-                                <span class="badge bg-light text-dark ms-auto">156</span>
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action border-0 px-0">
-                                <i class="fas fa-gamepad me-2"></i>Sports & Games
-                                <span class="badge bg-light text-dark ms-auto">98</span>
-                            </a>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
@@ -176,238 +201,117 @@ require "db/db.php";
 
                 <!-- Products Grid -->
                 <div class="row g-4">
-                    <!-- Product 1 -->
+                    <?php if($products_result->num_rows > 0): ?>
+                    <?php while($product = $products_result->fetch_assoc()): ?>
                     <div class="col-lg-4 col-md-6">
                         <div class="product-card card h-100 shadow-sm">
                             <div class="position-relative">
-                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Wireless+Headphones" class="card-img-top" alt="Product">
+                                <img src="<?php echo !empty($product['primary_image']) ? $product['primary_image'] : 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($product['name']); ?>">
                                 <div class="position-absolute top-0 end-0 m-2">
                                     <button class="btn btn-light btn-sm rounded-circle">
                                         <i class="far fa-heart"></i>
                                     </button>
                                 </div>
+                                <?php if($product['featured']): ?>
                                 <div class="position-absolute top-0 start-0 m-2">
-                                    <span class="badge bg-danger">-20%</span>
+                                    <span class="badge bg-danger">Featured</span>
                                 </div>
+                                <?php endif; ?>
                             </div>
                             <div class="card-body">
-                                <h6 class="card-title">Premium Wireless Headphones</h6>
-                                <p class="text-muted small mb-2">TechVendor</p>
+                                <h6 class="card-title"><?php echo htmlspecialchars($product['name']); ?></h6>
+                                <p class="text-muted small mb-2"><?php echo !empty($product['category_name']) ? htmlspecialchars($product['category_name']) : 'Uncategorized'; ?></p>
                                 <div class="d-flex align-items-center mb-2">
                                     <div class="text-warning me-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
+                                        <?php 
+                                        $avg_rating = $product['avg_rating'] ? round($product['avg_rating']) : 0;
+                                        for($i = 1; $i <= 5; $i++):
+                                            if($i <= $avg_rating):
+                                                echo '<i class="fas fa-star"></i>';
+                                            else:
+                                                echo '<i class="far fa-star"></i>';
+                                            endif;
+                                        endfor;
+                                        ?>
                                     </div>
-                                    <small class="text-muted">(124 reviews)</small>
+                                    <small class="text-muted">(<?php echo $product['review_count']; ?> reviews)</small>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <span class="h6 text-primary mb-0">$89.99</span>
-                                        <small class="text-muted text-decoration-line-through ms-2">$112.49</small>
+                                        <span class="h6 text-primary mb-0">$<?php echo number_format($product['price'], 2); ?></span>
+                                        <?php if($product['compare_price'] && $product['compare_price'] > $product['price']): ?>
+                                        <small class="text-muted text-decoration-line-through ms-2">$<?php echo number_format($product['compare_price'], 2); ?></small>
+                                        <?php endif; ?>
                                     </div>
-                                    <button class="btn btn-primary btn-sm">
+                                    <a href="#" class="btn btn-primary btn-sm">
                                         <i class="fas fa-cart-plus"></i>
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Product 2 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card card h-100 shadow-sm">
-                            <div class="position-relative">
-                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Smart+Watch" class="card-img-top" alt="Product">
-                                <div class="position-absolute top-0 end-0 m-2">
-                                    <button class="btn btn-light btn-sm rounded-circle">
-                                        <i class="fas fa-heart text-danger"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">Smart Fitness Watch</h6>
-                                <p class="text-muted small mb-2">GadgetStore</p>
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="text-warning me-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <small class="text-muted">(89 reviews)</small>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h6 text-primary mb-0">$199.99</span>
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-cart-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
+                    <?php endwhile; ?>
+                    <?php else: ?>
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <h5>No products found</h5>
+                            <p>There are currently no products available in this category.</p>
                         </div>
                     </div>
-
-                    <!-- Product 3 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card card h-100 shadow-sm">
-                            <div class="position-relative">
-                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Laptop+Backpack" class="card-img-top" alt="Product">
-                                <div class="position-absolute top-0 end-0 m-2">
-                                    <button class="btn btn-light btn-sm rounded-circle">
-                                        <i class="far fa-heart"></i>
-                                    </button>
-                                </div>
-                                <div class="position-absolute top-0 start-0 m-2">
-                                    <span class="badge bg-success">New</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">Professional Laptop Backpack</h6>
-                                <p class="text-muted small mb-2">BagWorld</p>
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="text-warning me-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                    </div>
-                                    <small class="text-muted">(67 reviews)</small>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h6 text-primary mb-0">$49.99</span>
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-cart-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Repeat similar products... -->
-                    <!-- Product 4 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card card h-100 shadow-sm">
-                            <div class="position-relative">
-                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Gaming+Mouse" class="card-img-top" alt="Product">
-                                <div class="position-absolute top-0 end-0 m-2">
-                                    <button class="btn btn-light btn-sm rounded-circle">
-                                        <i class="far fa-heart"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">RGB Gaming Mouse</h6>
-                                <p class="text-muted small mb-2">GameGear</p>
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="text-warning me-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <small class="text-muted">(156 reviews)</small>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h6 text-primary mb-0">$79.99</span>
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-cart-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product 5 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card card h-100 shadow-sm">
-                            <div class="position-relative">
-                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Bluetooth+Speaker" class="card-img-top" alt="Product">
-                                <div class="position-absolute top-0 end-0 m-2">
-                                    <button class="btn btn-light btn-sm rounded-circle">
-                                        <i class="far fa-heart"></i>
-                                    </button>
-                                </div>
-                                <div class="position-absolute top-0 start-0 m-2">
-                                    <span class="badge bg-warning">Hot</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">Portable Bluetooth Speaker</h6>
-                                <p class="text-muted small mb-2">AudioTech</p>
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="text-warning me-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                    </div>
-                                    <small class="text-muted">(203 reviews)</small>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h6 text-primary mb-0">$129.99</span>
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-cart-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product 6 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card card h-100 shadow-sm">
-                            <div class="position-relative">
-                                <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Wireless+Charger" class="card-img-top" alt="Product">
-                                <div class="position-absolute top-0 end-0 m-2">
-                                    <button class="btn btn-light btn-sm rounded-circle">
-                                        <i class="far fa-heart"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">Fast Wireless Charger</h6>
-                                <p class="text-muted small mb-2">ChargeTech</p>
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="text-warning me-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                    </div>
-                                    <small class="text-muted">(91 reviews)</small>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h6 text-primary mb-0">$39.99</span>
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="fas fa-cart-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Pagination -->
                 <nav class="mt-5">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">21</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                        </li>
+                        <?php
+                        $current_page = $page;
+                        $total_pages = $total_pages;
+                        $adjacents = 2;
+                        $category_param = isset($_GET['category']) ? '&category=' . (int)$_GET['category'] : '';
+                        
+                        // Previous button
+                        if($current_page > 1) {
+                            $prev_page = $current_page - 1;
+                            echo '<li class="page-item"><a class="page-link" href="?page=' . $prev_page . $category_param . '"><i class="fas fa-chevron-left"></i></a></li>';
+                        } else {
+                            echo '<li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>';
+                        }
+                        
+                        // Pages
+                        $start = max(1, $current_page - $adjacents);
+                        $end = min($total_pages, $current_page + $adjacents);
+                        
+                        if($start > 1) {
+                            echo '<li class="page-item"><a class="page-link" href="?page=1' . $category_param . '">1</a></li>';
+                            if($start > 2) {
+                                echo '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                            }
+                        }
+                        
+                        for($i = $start; $i <= $end; $i++) {
+                            if($i == $current_page) {
+                                echo '<li class="page-item active"><a class="page-link" href="?page=' . $i . $category_param . '">' . $i . '</a></li>';
+                            } else {
+                                echo '<li class="page-item"><a class="page-link" href="?page=' . $i . $category_param . '">' . $i . '</a></li>';
+                            }
+                        }
+                        
+                        if($end < $total_pages) {
+                            if($end < $total_pages - 1) {
+                                echo '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                            }
+                            echo '<li class="page-item"><a class="page-link" href="?page=' . $total_pages . $category_param . '">' . $total_pages . '</a></li>';
+                        }
+                        
+                        // Next button
+                        if($current_page < $total_pages) {
+                            $next_page = $current_page + 1;
+                            echo '<li class="page-item"><a class="page-link" href="?page=' . $next_page . $category_param . '"><i class="fas fa-chevron-right"></i></a></li>';
+                        } else {
+                            echo '<li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>';
+                        }
+                        ?>
                     </ul>
                 </nav>
             </div>

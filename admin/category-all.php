@@ -49,26 +49,21 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
     }
 }
 
-// Fetch all categories with parent names
-$sql = "SELECT c.id, c.name, c.slug, c.description, c.parent_id, c.image, c.status, p.name as parent_name 
+// Fetch all categories with full parent chain
+$sql = "SELECT c.id, c.name, c.slug, c.description, c.parent_id, c.image, c.status, 
+               p1.name as parent_name, p2.name as grandparent_name
          FROM categories c 
-         LEFT JOIN categories p ON c.parent_id = p.id 
-         ORDER BY c.parent_id, c.name";
+         LEFT JOIN categories p1 ON c.parent_id = p1.id
+         LEFT JOIN categories p2 ON p1.parent_id = p2.id
+         ORDER BY COALESCE(c.parent_id, c.id), c.name";
 $result = $conn->query($sql);
 $categories = [];
 while ($row = $result->fetch_assoc()) {
     $categories[] = $row;
 }
 
-// Group categories by parent for better display
-$categorized = [];
-foreach ($categories as $cat) {
-    if (is_null($cat['parent_id'])) {
-        $categorized['root'][] = $cat;
-    } else {
-        $categorized['sub'][$cat['parent_id']][] = $cat;
-    }
-}
+// Categories are displayed directly without grouping
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -118,13 +113,41 @@ foreach ($categories as $cat) {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php foreach ($categorized['root'] ?? [] as $category): ?>
+                                                    <?php foreach ($categories as $category): ?>
                                                     <tr>
                                                         <td><?php echo $category['id']; ?></td>
-                                                        <td><strong><?php echo htmlspecialchars($category['name']); ?></strong></td>
+                                                        <td>
+                                                            <?php 
+                                                            // Show hierarchy with proper indentation
+                                                            if (!is_null($category['parent_id'])) {
+                                                                if (!is_null($category['grandparent_name'])) {
+                                                                    // Level 3 category
+                                                                    echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ ';
+                                                                } else {
+                                                                    // Level 2 category
+                                                                    echo '&nbsp;&nbsp;&nbsp;&nbsp;└ ';
+                                                                }
+                                                            }
+                                                            echo htmlspecialchars($category['name']); 
+                                                            ?>
+                                                        </td>
                                                         <td><?php echo htmlspecialchars($category['slug']); ?></td>
                                                         <td><?php echo htmlspecialchars(substr($category['description'], 0, 50)) . (strlen($category['description']) > 50 ? '...' : ''); ?></td>
-                                                        <td>-</td>
+                                                        <td>
+                                                            <?php 
+                                                            if (!is_null($category['parent_id'])) {
+                                                                if (!is_null($category['grandparent_name'])) {
+                                                                    // Show grandparent → parent format for level 3
+                                                                    echo htmlspecialchars($category['grandparent_name'] . ' → ' . $category['parent_name']);
+                                                                } else {
+                                                                    // Show parent name for level 2
+                                                                    echo htmlspecialchars($category['parent_name']);
+                                                                }
+                                                            } else {
+                                                                echo '-';
+                                                            }
+                                                            ?>
+                                                        </td>
                                                         <td>
                                                             <span class="badge bg-<?php echo $category['status'] === 'active' ? 'success' : 'secondary'; ?>">
                                                                 <?php echo ucfirst($category['status']); ?>
@@ -139,32 +162,6 @@ foreach ($categories as $cat) {
                                                             </a>
                                                         </td>
                                                     </tr>
-                                                    <?php 
-                                                    // Show subcategories under this root category
-                                                    if (isset($categorized['sub'][$category['id']])) {
-                                                        foreach ($categorized['sub'][$category['id']] as $subcategory):
-                                                    ?> 
-                                                    <tr>
-                                                        <td><?php echo $subcategory['id']; ?></td>
-                                                        <td>&nbsp;&nbsp;&nbsp;&nbsp;└ <?php echo htmlspecialchars($subcategory['name']); ?></td>
-                                                        <td><?php echo htmlspecialchars($subcategory['slug']); ?></td>
-                                                        <td><?php echo htmlspecialchars(substr($subcategory['description'], 0, 50)) . (strlen($subcategory['description']) > 50 ? '...' : ''); ?></td>
-                                                        <td><?php echo htmlspecialchars($subcategory['parent_name']); ?></td>
-                                                        <td>
-                                                            <span class="badge bg-<?php echo $subcategory['status'] === 'active' ? 'success' : 'secondary'; ?>">
-                                                                <?php echo ucfirst($subcategory['status']); ?>
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <a href="category-edit.php?id=<?php echo $subcategory['id']; ?>" class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                                                <i class="fas fa-edit"></i>
-                                                            </a>
-                                                            <a href="?action=delete&id=<?php echo $subcategory['id']; ?>" class="btn btn-sm btn-outline-danger confirm-delete" title="Delete" onclick="return confirm('Are you sure you want to delete this category?')">
-                                                                <i class="fas fa-trash"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    <?php endforeach; } ?>
                                                     <?php endforeach; ?>
                                                 </tbody>
                                             </table>
