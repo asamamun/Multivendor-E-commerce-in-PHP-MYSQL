@@ -86,6 +86,9 @@ if($is_logged_in) {
     <!-- Lightbox2 CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
     
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
         
     <!-- Google Fonts - Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -400,6 +403,13 @@ if($is_logged_in) {
     <!-- Lightbox2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
     
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Cart JS -->
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/cart-init.js"></script>
+    
     <script>
         // Global variable for easyZoom API
         var api;
@@ -457,8 +467,19 @@ if($is_logged_in) {
         
         // Add to cart function
         function addToCart(productId) {
-            // Add your cart logic here
-            alert('Added to cart: Product ID ' + productId);
+            const productData = {
+                name: '<?php echo addslashes($product['name']); ?>',
+                price: <?php echo $product['price']; ?>,
+                image: '<?php echo !empty($images[0]['image_path']) ? addslashes($images[0]['image_path']) : 'https://via.placeholder.com/100x80/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>',
+                vendor: '<?php echo addslashes(!empty($product['store_name']) ? $product['store_name'] : $product['vendor_name']); ?>'
+            };
+            
+            if (window.cart) {
+                cart.addToCart(productId, productData);
+            } else {
+                // Fallback if cart is not loaded yet
+                alert('Added to cart: ' + productData.name);
+            }
         }
         
         // Toggle wishlist function

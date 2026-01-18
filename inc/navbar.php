@@ -12,12 +12,15 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <!-- Search Bar -->
                 <div class="mx-auto d-flex search-container">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search products...">
-                        <button class="btn btn-primary" type="button">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
+                    <form method="GET" action="shop.php" class="d-flex">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Search products..." 
+                                   value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 
                 <!-- Right Side Menu -->
@@ -25,8 +28,8 @@
                     <li class="nav-item">
                         <a class="nav-link position-relative" href="cart.php">
                             <i class="fas fa-shopping-cart fs-5"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                3
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge" style="display: none;">
+                                0
                             </span>
                         </a>
                     </li>
@@ -85,3 +88,39 @@
             </div>
         </div>
     </nav>
+    
+    <!-- Cart Badge Update Script -->
+    <script>
+        // Simple cart badge updater that doesn't conflict with main cart.js
+        (function() {
+            function updateCartBadge() {
+                try {
+                    const cartData = localStorage.getItem('marketplace_cart');
+                    const cart = cartData ? JSON.parse(cartData) : {};
+                    const count = Object.values(cart).reduce((total, item) => total + (item.quantity || 0), 0);
+                    
+                    const badge = document.querySelector('.cart-badge');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'inline' : 'none';
+                    }
+                } catch (error) {
+                    console.error('Error updating cart badge:', error);
+                }
+            }
+            
+            // Update badge on page load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateCartBadge);
+            } else {
+                updateCartBadge();
+            }
+            
+            // Listen for storage changes
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'marketplace_cart') {
+                    updateCartBadge();
+                }
+            });
+        })();
+    </script>

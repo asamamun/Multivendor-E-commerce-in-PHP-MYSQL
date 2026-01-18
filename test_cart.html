@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Test - MarketPlace</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+</head>
+<body>
+    <div class="container my-5">
+        <h2 class="mb-4">Cart System Test</h2>
+        
+        <!-- Cart Badge Test -->
+        <div class="mb-4">
+            <h5>Cart Badge: 
+                <span class="badge bg-primary cart-badge" style="display: none;">0</span>
+            </h5>
+        </div>
+        
+        <!-- Test Products -->
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x200/007bff/ffffff?text=Product+1" class="card-img-top" alt="Product 1">
+                    <div class="card-body">
+                        <h5 class="card-title">Test Product 1</h5>
+                        <p class="card-text">A great test product for our cart system.</p>
+                        <p class="text-primary fw-bold">৳99.99</p>
+                        <button class="btn btn-primary" onclick="addTestProduct(1)">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x200/28a745/ffffff?text=Product+2" class="card-img-top" alt="Product 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Test Product 2</h5>
+                        <p class="card-text">Another amazing test product.</p>
+                        <p class="text-primary fw-bold">৳149.99</p>
+                        <button class="btn btn-primary" onclick="addTestProduct(2)">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x200/dc3545/ffffff?text=Product+3" class="card-img-top" alt="Product 3">
+                    <div class="card-body">
+                        <h5 class="card-title">Test Product 3</h5>
+                        <p class="card-text">The best test product ever!</p>
+                        <p class="text-primary fw-bold">৳199.99</p>
+                        <button class="btn btn-primary" onclick="addTestProduct(3)">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cart Actions -->
+        <div class="mt-5">
+            <h5>Cart Actions:</h5>
+            <div class="btn-group" role="group">
+                <button class="btn btn-info" onclick="showCartInfo()">Show Cart Info</button>
+                <button class="btn btn-warning" onclick="clearCart()">Clear Cart</button>
+                <a href="cart.php" class="btn btn-success">View Cart Page</a>
+            </div>
+        </div>
+        
+        <!-- Cart Info Display -->
+        <div class="mt-4">
+            <div id="cart-info" class="alert alert-info" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Cart JS -->
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/cart-init.js"></script>
+    
+    <script>
+        const testProducts = {
+            1: {
+                name: 'Test Product 1',
+                price: 99.99,
+                image: 'https://via.placeholder.com/100x80/007bff/ffffff?text=P1',
+                vendor: 'Test Vendor 1'
+            },
+            2: {
+                name: 'Test Product 2',
+                price: 149.99,
+                image: 'https://via.placeholder.com/100x80/28a745/ffffff?text=P2',
+                vendor: 'Test Vendor 2'
+            },
+            3: {
+                name: 'Test Product 3',
+                price: 199.99,
+                image: 'https://via.placeholder.com/100x80/dc3545/ffffff?text=P3',
+                vendor: 'Test Vendor 3'
+            }
+        };
+        
+        function addTestProduct(productId) {
+            const productData = testProducts[productId];
+            if (window.cart && productData) {
+                cart.addToCart(productId, productData);
+            }
+        }
+        
+        function showCartInfo() {
+            if (window.cart) {
+                const items = cart.getCartItems();
+                const total = cart.getCartTotal();
+                const count = cart.getItemCount();
+                
+                let info = `<strong>Cart Summary:</strong><br>`;
+                info += `Items: ${count}<br>`;
+                info += `Total: ৳${total.toFixed(2)}<br><br>`;
+                
+                if (items.length > 0) {
+                    info += `<strong>Items in cart:</strong><br>`;
+                    items.forEach(item => {
+                        info += `- ${item.name} (Qty: ${item.quantity}) - ৳${(item.price * item.quantity).toFixed(2)}<br>`;
+                    });
+                } else {
+                    info += `Cart is empty.`;
+                }
+                
+                document.getElementById('cart-info').innerHTML = info;
+                document.getElementById('cart-info').style.display = 'block';
+            }
+        }
+        
+        function clearCart() {
+            if (window.cart) {
+                cart.clearCart();
+            }
+        }
+    </script>
+</body>
+</html>
