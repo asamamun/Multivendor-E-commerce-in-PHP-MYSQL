@@ -369,9 +369,9 @@ if(session_status() == PHP_SESSION_NONE){
             const total = subtotal + tax;
             
             // Update display
-            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-            document.getElementById('tax').textContent = '$' + tax.toFixed(2);
-            document.getElementById('total').textContent = '$' + total.toFixed(2);
+            document.getElementById('subtotal').textContent = '৳' + subtotal.toFixed(2);
+            document.getElementById('tax').textContent = '৳' + tax.toFixed(2);
+            document.getElementById('total').textContent = '৳' + total.toFixed(2);
         }
     </script>
 </body>

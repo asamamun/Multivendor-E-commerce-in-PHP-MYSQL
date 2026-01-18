@@ -7,15 +7,22 @@ require "db/db.php";
 
 // Fetch categories from database
 $categories_sql = "SELECT c1.id, c1.name, c1.slug, c1.parent_id, 
-                  (SELECT COUNT(*) FROM products p WHERE p.category_id = c1.id) as product_count,
+                  (SELECT COUNT(*) FROM products p WHERE p.category_id = c1.id OR p.category_id IN (SELECT id FROM categories WHERE parent_id = c1.id)) as product_count,
                   (SELECT GROUP_CONCAT(c2.id) FROM categories c2 WHERE c2.parent_id = c1.id) as child_ids
                   FROM categories c1 
-                  WHERE c1.status = 'active' AND c1.parent_id IS NULL
-                  ORDER BY c1.sort_order ASC, c1.name ASC";
+                  WHERE c1.status = 'active'
+                  ORDER BY c1.parent_id ASC, c1.sort_order ASC, c1.name ASC";
 $categories_result = $conn->query($categories_sql);
 $categories_array = [];
+$parent_categories = [];
+$child_categories = [];
+
 while($row = $categories_result->fetch_assoc()) {
-    $categories_array[] = $row;
+    if($row['parent_id'] === null || $row['parent_id'] === 0) {
+        $parent_categories[$row['id']] = $row;
+    } else {
+        $child_categories[$row['parent_id']][] = $row;
+    }
 }
 $categories_result->data_seek(0); // Reset pointer for display
 
@@ -26,9 +33,11 @@ $limit = 12;
 $offset = ($page - 1) * $limit;
 
 // Build the base query with optional category filter
-$where_clause = "";
 if($category_filter > 0) {
-    $where_clause = "WHERE p.category_id = $category_filter";
+    // Include products from both parent and child categories
+    $where_clause = "WHERE (p.category_id = $category_filter OR p.category_id IN (
+        SELECT id FROM categories WHERE parent_id = $category_filter
+    ))";
 } else {
     $where_clause = "WHERE 1=1"; // Include all products when no category filter
 }
@@ -67,6 +76,9 @@ $products_result = $conn->query($products_sql);
     <!-- Google Fonts - Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -88,11 +100,26 @@ $products_result = $conn->query($products_sql);
                     <div class="filter-section">
                         <h6 class="fw-semibold">Categories</h6>
                         <div class="list-group list-group-flush">
-                            <?php foreach($categories_array as $category): ?>
+                            <?php foreach($parent_categories as $category): ?>
                             <a href="?category=<?php echo $category['id']; ?>&page=1" class="list-group-item list-group-item-action border-0 px-0">
                                 <i class="fas fa-tag me-2"></i><?php echo htmlspecialchars($category['name']); ?>
                                 <span class="badge bg-light text-dark ms-auto"><?php echo $category['product_count']; ?></span>
                             </a>
+                            
+                            <!-- Child categories -->
+                            <?php if(isset($child_categories[$category['id']])): ?>
+                            <div class="ms-3 collapse" id="children_<?php echo $category['id']; ?>">
+                                <?php foreach($child_categories[$category['id']] as $child): ?>
+                                <a href="?category=<?php echo $child['id']; ?>&page=1" class="list-group-item list-group-item-action border-0 px-0 py-1 small">
+                                    <i class="fas fa-angle-right ms-2 me-2"></i><?php echo htmlspecialchars($child['name']); ?>
+                                    <span class="badge bg-light text-dark ms-auto"><?php echo $child['product_count']; ?></span>
+                                </a>
+                                <?php endforeach; ?>
+                            </div>
+                            <a href="#children_<?php echo $category['id']; ?>" class="list-group-item list-group-item-action border-0 px-0 small text-muted" data-bs-toggle="collapse">
+                                <i class="fas fa-plus me-2"></i>Show subcategories
+                            </a>
+                            <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -101,7 +128,7 @@ $products_result = $conn->query($products_sql);
                     <div class="filter-section">
                         <h6 class="fw-semibold">Price Range</h6>
                         <div class="mb-3">
-                            <label for="priceRange" class="form-label">$0 - $1000</label>
+                            <label for="priceRange" class="form-label">৳0 - ৳1000</label>
                             <input type="range" class="form-range" id="priceRange" min="0" max="1000" value="500">
                         </div>
                         <div class="row">
@@ -178,7 +205,7 @@ $products_result = $conn->query($products_sql);
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h4 class="mb-1">All Products</h4>
-                        <p class="text-muted mb-0">Showing 1-12 of 245 results</p>
+                        <p class="text-muted mb-0">Showing <?php echo $offset + 1; ?>-<?php echo min($offset + $limit, $total_products); ?> of <?php echo $total_products; ?> results</p>
                     </div>
                     <div class="d-flex gap-2">
                         <select class="form-select form-select-sm" style="width: auto;">
@@ -204,11 +231,13 @@ $products_result = $conn->query($products_sql);
                     <?php if($products_result->num_rows > 0): ?>
                     <?php while($product = $products_result->fetch_assoc()): ?>
                     <div class="col-lg-4 col-md-6">
-                        <div class="product-card card h-100 shadow-sm">
+                        <div class="product-card card h-100 shadow-sm" data-aos="fade-up">
                             <div class="position-relative">
-                                <img src="<?php echo !empty($product['primary_image']) ? $product['primary_image'] : 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                                <a href="product.php?id=<?php echo $product['id']; ?>">
+                                    <img src="<?php echo !empty($product['primary_image']) ? $product['primary_image'] : 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                                </a>
                                 <div class="position-absolute top-0 end-0 m-2">
-                                    <button class="btn btn-light btn-sm rounded-circle">
+                                    <button class="btn btn-light btn-sm rounded-circle" onclick="toggleWishlist(<?php echo $product['id']; ?>)">
                                         <i class="far fa-heart"></i>
                                     </button>
                                 </div>
@@ -219,7 +248,11 @@ $products_result = $conn->query($products_sql);
                                 <?php endif; ?>
                             </div>
                             <div class="card-body">
-                                <h6 class="card-title"><?php echo htmlspecialchars($product['name']); ?></h6>
+                                <h6 class="card-title">
+                                    <a href="product.php?id=<?php echo $product['id']; ?>" class="text-decoration-none text-dark">
+                                        <?php echo htmlspecialchars($product['name']); ?>
+                                    </a>
+                                </h6>
                                 <p class="text-muted small mb-2"><?php echo !empty($product['category_name']) ? htmlspecialchars($product['category_name']) : 'Uncategorized'; ?></p>
                                 <div class="d-flex align-items-center mb-2">
                                     <div class="text-warning me-2">
@@ -238,14 +271,14 @@ $products_result = $conn->query($products_sql);
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <span class="h6 text-primary mb-0">$<?php echo number_format($product['price'], 2); ?></span>
+                                        <span class="h6 text-primary mb-0">৳<?php echo number_format($product['price'], 2); ?></span>
                                         <?php if($product['compare_price'] && $product['compare_price'] > $product['price']): ?>
-                                        <small class="text-muted text-decoration-line-through ms-2">$<?php echo number_format($product['compare_price'], 2); ?></small>
+                                        <small class="text-muted text-decoration-line-through ms-2">৳<?php echo number_format($product['compare_price'], 2); ?></small>
                                         <?php endif; ?>
                                     </div>
-                                    <a href="#" class="btn btn-primary btn-sm">
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(<?php echo $product['id']; ?>)">
                                         <i class="fas fa-cart-plus"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -320,5 +353,30 @@ $products_result = $conn->query($products_sql);
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="assets/js/jquery-4.0.0.min.js"></script>
+    
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+        
+        // Add to cart function
+        function addToCart(productId) {
+            // Add your cart logic here
+            alert('Added to cart: Product ID ' + productId);
+        }
+        
+        // Toggle wishlist function
+        function toggleWishlist(productId) {
+            // Add your wishlist logic here
+            alert('Toggled wishlist: Product ID ' + productId);
+        }
+    </script>
 </body>
 </html>
