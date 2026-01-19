@@ -50,7 +50,7 @@ if(!empty($search_query)) {
     $where_conditions[] = "(p.name LIKE '%$search_escaped%' OR p.description LIKE '%$search_escaped%' OR p.short_description LIKE '%$search_escaped%')";
 }
 
-$where_clause = !empty($where_conditions) ? "WHERE " . implode(" AND ", $where_conditions) : "WHERE 1=1";
+$where_clause = !empty($where_conditions) ? "WHERE deleted_at is null and " . implode(" AND ", $where_conditions) : "WHERE deleted_at is null";
 
 // Count total products for pagination
 $count_sql = "SELECT COUNT(*) as total FROM products p $where_clause";

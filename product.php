@@ -21,7 +21,7 @@ $product_sql = "SELECT p.*, c.name as category_name, u.name as vendor_name, vp.s
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN users u ON p.vendor_id = u.id
                 LEFT JOIN vendor_profiles vp ON u.id = vp.user_id
-                WHERE p.id = $product_id";
+                WHERE p.id = $product_id and p.deleted_at is null";
                 
 $product_result = $conn->query($product_sql);
 
