@@ -2,6 +2,7 @@
 $page = 'Admin Dashboard';
 $description = 'This is the admin dashboard page';
 $author = 'ASA Al-Mamun';
+$title = 'Admin Dashboard';
 ?>
 <!DOCTYPE html>
 <html lang="en">

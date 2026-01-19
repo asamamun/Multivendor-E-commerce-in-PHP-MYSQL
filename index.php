@@ -13,6 +13,30 @@ $categories = [];
 while ($row = $categories_result->fetch_assoc()) {
     $categories[] = $row;
 }
+
+// Fetch featured products
+$featured_sql = "SELECT p.*, 
+                 u.name as vendor_name, 
+                 vp.store_name,
+                 (SELECT image_path FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, sort_order ASC LIMIT 1) as image_path,
+                 (SELECT COUNT(*) FROM reviews WHERE product_id = p.id AND status = 'approved') as review_count,
+                 (SELECT AVG(rating) FROM reviews WHERE product_id = p.id AND status = 'approved') as avg_rating
+                 FROM products p
+                 LEFT JOIN users u ON p.vendor_id = u.id
+                 LEFT JOIN vendor_profiles vp ON u.id = vp.user_id
+                 WHERE p.status = 'active' AND p.featured = 1 AND p.deleted_at IS NULL
+                 ORDER BY p.id DESC";
+$featured_result = $conn->query($featured_sql);
+$featured_products = [];
+
+if ($featured_result) {
+    while ($row = $featured_result->fetch_assoc()) {
+        $featured_products[] = $row;
+    }
+} else {
+    // Fallback or debug: Log error if needed, for now just empty array
+    // error_log("Featured products query failed: " . $conn->error);
+}
 /* var_dump($categories);
 exit; */
 ?>
@@ -141,109 +165,66 @@ exit; */
     <section class="py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-5" data-aos="fade-up">Featured Products</h2>
-            <div class="row g-4">
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            
+            <?php if (!empty($featured_products)): ?>
+            <div class="featured-carousel owl-carousel owl-theme" data-aos="fade-up" data-aos-delay="100">
+                <?php foreach ($featured_products as $product): ?>
+                <div class="item">
                     <div class="product-card card h-100 shadow-sm">
-                        <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Product+1" class="card-img-top" alt="Product">
-                        <div class="card-body">
-                            <h6 class="card-title">Wireless Headphones</h6>
-                            <p class="text-muted small">TechVendor</p>
+                        <div class="position-relative">
+                            <a href="product.php?id=<?php echo $product['id']; ?>">
+                                <img src="<?php echo !empty($product['image_path']) ? $product['image_path'] : 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>" 
+                                     class="card-img-top" 
+                                     alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                     style="height: 200px; object-fit: cover;">
+                            </a>
+                            <?php if($product['compare_price'] > $product['price']): ?>
+                                <span class="badge bg-danger position-absolute top-0 start-0 m-2">Sale</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title text-truncate">
+                                <a href="product.php?id=<?php echo $product['id']; ?>" class="text-decoration-none text-dark">
+                                    <?php echo htmlspecialchars($product['name']); ?>
+                                </a>
+                            </h6>
+                            <p class="text-muted small mb-2">
+                                <?php echo htmlspecialchars(!empty($product['store_name']) ? $product['store_name'] : $product['vendor_name']); ?>
+                            </p>
+                            
                             <div class="d-flex align-items-center mb-2">
-                                <div class="text-warning me-2">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
+                                <div class="text-warning me-2 small">
+                                    <?php 
+                                    $rating = round($product['avg_rating'] ?? 0);
+                                    for($i = 1; $i <= 5; $i++) {
+                                        echo $i <= $rating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+                                    }
+                                    ?>
                                 </div>
-                                <small class="text-muted">(124)</small>
+                                <small class="text-muted">(<?php echo $product['review_count'] ?? 0; ?>)</small>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h6 text-primary mb-0">$89.99</span>
-                                <button class="btn btn-primary btn-sm">
+                            
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="h6 text-primary mb-0">৳<?php echo number_format($product['price'], 2); ?></span>
+                                    <?php if($product['compare_price'] > $product['price']): ?>
+                                        <small class="text-muted text-decoration-line-through ms-1">৳<?php echo number_format($product['compare_price'], 2); ?></small>
+                                    <?php endif; ?>
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm rounded-circle" onclick="addToCart(<?php echo $product['id']; ?>)" title="Add to Cart">
                                     <i class="fas fa-cart-plus"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Repeat for more products -->
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                    <div class="product-card card h-100 shadow-sm">
-                        <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Product+2" class="card-img-top" alt="Product">
-                        <div class="card-body">
-                            <h6 class="card-title">Smart Watch</h6>
-                            <p class="text-muted small">GadgetStore</p>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="text-warning me-2">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <small class="text-muted">(89)</small>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h6 text-primary mb-0">$199.99</span>
-                                <button class="btn btn-primary btn-sm">
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                    <div class="product-card card h-100 shadow-sm">
-                        <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Product+3" class="card-img-top" alt="Product">
-                        <div class="card-body">
-                            <h6 class="card-title">Laptop Backpack</h6>
-                            <p class="text-muted small">BagWorld</p>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="text-warning me-2">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                </div>
-                                <small class="text-muted">(67)</small>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h6 text-primary mb-0">$49.99</span>
-                                <button class="btn btn-primary btn-sm">
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                    <div class="product-card card h-100 shadow-sm">
-                        <img src="https://via.placeholder.com/300x200/f8f9fa/6c757d?text=Product+4" class="card-img-top" alt="Product">
-                        <div class="card-body">
-                            <h6 class="card-title">Gaming Mouse</h6>
-                            <p class="text-muted small">GameGear</p>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="text-warning me-2">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <small class="text-muted">(156)</small>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h6 text-primary mb-0">$79.99</span>
-                                <button class="btn btn-primary btn-sm">
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
+            <?php else: ?>
+                <div class="text-center py-4">
+                    <p class="text-muted">No featured products available at the moment.</p>
+                </div>
+            <?php endif; ?>
             <div class="text-center mt-5">
                 <a href="shop.php" class="btn btn-outline-primary btn-lg">View All Products</a>
             </div>
@@ -365,6 +346,40 @@ exit; */
                     },
                     1200: {
                         items: 5
+                    }
+                }
+            });
+
+            // Initialize Featured Products Carousel
+            $('.featured-carousel').owlCarousel({
+                loop: false,
+                margin: 20,
+                nav: true,
+                dots: false,
+                autoplay: true,
+                autoplayTimeout: 4000,
+                autoplayHoverPause: true,
+                rewind: true,
+                navText: [
+                    '<i class="fas fa-chevron-left"></i>',
+                    '<i class="fas fa-chevron-right"></i>'
+                ],
+                responsive: {
+                    0: {
+                        items: 1,
+                        nav: false
+                    },
+                    576: {
+                        items: 2
+                    },
+                    768: {
+                        items: 2
+                    },
+                    992: {
+                        items: 3
+                    },
+                    1200: {
+                        items: 4
                     }
                 }
             });
