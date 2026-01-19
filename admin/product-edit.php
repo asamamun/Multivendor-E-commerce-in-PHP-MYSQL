@@ -139,8 +139,7 @@ while ($row = $brand_result->fetch_assoc()) {
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item active">Dashboard / Edit Product / <a href="product-all.php">All Products</a></li>
                         </ol>
-                        <div class="row">
-                            <?php if (!empty($message)): ?>
+                        <?php if (!empty($message)): ?>
                             <div class="alert alert-<?php echo $messageType; ?> alert-dismissible fade show" role="alert">
                                 <?php echo htmlspecialchars($message); ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -282,7 +281,6 @@ while ($row = $brand_result->fetch_assoc()) {
                                     </div>
                                 </div>
                             </form>
-                        </div>
                     </div>
                 </main>
             <?php include "inc/footer.php"; ?>
