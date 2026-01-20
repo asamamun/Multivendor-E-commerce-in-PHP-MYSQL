@@ -67,7 +67,9 @@
                                 <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
                             <?php } ?>
                             
-                            <li><a class="dropdown-item" href="orders.php">My Orders</a></li>
+                            <?php if(isset($_SESSION['user_id'])): ?>
+                                <li><a class="dropdown-item" href="orders.php">My Orders</a></li>
+                            <?php endif; ?>
                             <li><hr class="dropdown-divider"></li>
                             <?php
                                 if(isset($_SESSION['user_id'])){

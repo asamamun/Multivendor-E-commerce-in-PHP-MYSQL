@@ -48,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_data'])) {
                  $messageType = "danger";
             } else {
                 $ids = implode(',', array_map('intval', $product_ids));
-                // Fetch valid product info (price, vendor_id, updated stock)
-                $sql = "SELECT id, vendor_id, price, name, stock_quantity FROM products WHERE id IN ($ids)";
+                // Fetch valid product info (price, vendor_id, updated stock, sku)
+                $sql = "SELECT id, vendor_id, price, name, stock_quantity, sku FROM products WHERE id IN ($ids)";
                 $result = $conn->query($sql);
                 
                 $order_items = [];
@@ -60,6 +60,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_data'])) {
                     // Get quantity from submitted cart data
                     if (isset($cart_data[$pid])) {
                         $qty = $cart_data[$pid]['quantity'];
+                        
+                        // Check stock availability
+                        if ($qty > $p['stock_quantity']) {
+                            $message = "Sorry, '{$p['name']}' is out of stock or has only {$p['stock_quantity']} items left. Please update your cart.";
+                            $messageType = "danger";
+                            // Stop processing and show error
+                            $order_items = []; // Clear items to prevent partial order
+                            break; 
+                        }
+
                         $price = $p['price'];
                         $total = $price * $qty;
                         $subtotal += $total;
@@ -68,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_data'])) {
                             'product_id' => $pid,
                             'vendor_id' => $p['vendor_id'],
                             'name' => $p['name'],
+                            'sku' => $p['sku'],
                             'quantity' => $qty,
                             'price' => $price,
                             'total' => $total
@@ -102,11 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_data'])) {
                     $order_id = $conn->insert_id;
 
                     // B. Insert Order Items
-                    $item_sql = "INSERT INTO order_items (order_id, product_id, vendor_id, product_name, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $item_sql = "INSERT INTO order_items (order_id, product_id, vendor_id, product_name, product_sku, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $item_stmt = $conn->prepare($item_sql);
 
                     foreach ($order_items as $item) {
-                        $item_stmt->bind_param("iiisidd", $order_id, $item['product_id'], $item['vendor_id'], $item['name'], $item['quantity'], $item['price'], $item['total']);
+                        $item_stmt->bind_param("iiissidd", $order_id, $item['product_id'], $item['vendor_id'], $item['name'], $item['sku'], $item['quantity'], $item['price'], $item['total']);
                         $item_stmt->execute();
                         
                         // Decrease stock

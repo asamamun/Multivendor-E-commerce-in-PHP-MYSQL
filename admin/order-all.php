@@ -1,5 +1,8 @@
 <?php
 $page = 'All Orders';
+$description = 'View and manage customer orders';
+$author = 'ASA Al-Mamun';
+$title = 'All Orders';
 include "inc/head.php"; 
 include "../db/db.php";
 
@@ -28,9 +31,10 @@ $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start = ($curr_page - 1) * $limit;
 
 // Fetch Orders
-$sql = "SELECT o.*, u.name as customer_name 
+$sql = "SELECT o.*, u.name as customer_name, p.transaction_id 
         FROM orders o 
         JOIN users u ON o.customer_id = u.id 
+        LEFT JOIN payments p ON o.id = p.order_id
         ORDER BY o.created_at DESC 
         LIMIT $start, $limit";
 $result = $conn->query($sql);
@@ -89,6 +93,9 @@ $total_pages = ceil($total_rows / $limit);
                                                 <?php echo ucfirst($row['payment_status']); ?>
                                             </span>
                                             <br><small><?php echo ucfirst($row['payment_method']); ?></small>
+                                            <?php if ($row['payment_method'] !== 'cod' && !empty($row['transaction_id'])): ?>
+                                                <br><small class="text-muted fw-bold">TrxID: <?php echo htmlspecialchars($row['transaction_id']); ?></small>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <span class="badge bg-info text-dark"><?php echo ucfirst($row['order_status']); ?></span>

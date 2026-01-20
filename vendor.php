@@ -64,25 +64,89 @@ $products_result = $conn->query($products_sql);
     <?php include "inc/navbar.php"; ?>
     
     <!-- Vendor Header -->
-    <div class="container my-5">
+    <?php
+    $upload_dir = "assets/uploads/vendor/";
+    
+    // Check for Banner (JPG or PNG)
+    $banner_jpg = $upload_dir . $vendor_id . "_banner.jpg";
+    $banner_png = $upload_dir . $vendor_id . "_banner.png";
+    $has_banner = false;
+    $banner_path = "";
+
+    if (file_exists($banner_jpg)) {
+        $banner_path = $banner_jpg;
+        $has_banner = true;
+    } elseif (file_exists($banner_png)) {
+        $banner_path = $banner_png;
+        $has_banner = true;
+    }
+
+    // Check for Logo (JPG or PNG)
+    $logo_jpg = $upload_dir . $vendor_id . "_logo.jpg";
+    $logo_png = $upload_dir . $vendor_id . "_logo.png";
+    $has_logo = false;
+    $logo_path = "";
+
+    if (file_exists($logo_jpg)) {
+        $logo_path = $logo_jpg;
+        $has_logo = true;
+    } elseif (file_exists($logo_png)) {
+        $logo_path = $logo_png;
+        $has_logo = true;
+    }
+    ?>
+    
+    <?php if ($has_banner): ?>
+    <div class="container-fluid p-0 mb-5">
+        <div style="height: 300px; overflow: hidden; position: relative;">
+            <img src="<?php echo $banner_path; ?>?v=<?php echo filemtime($banner_path); ?>" alt="Store Banner" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3);"></div>
+        </div>
+    </div>
+    <?php else: ?>
+    <!-- Optional: Default banner or just spacing -->
+    <div class="container-fluid p-0 mb-5 bg-dark" style="height: 150px;"></div>
+    <?php endif; ?>
+
+    <div class="container <?php echo $has_banner ? 'mt-n5' : 'my-5'; ?>" style="position: relative; z-index: 2; margin-top: -80px;">
         <div class="row">
             <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                        <h1 class="display-5 mb-3">
-                            <?php echo htmlspecialchars(!empty($vendor['store_name']) ? $vendor['store_name'] : $vendor['name']); ?>
-                        </h1>
-                        <?php if(!empty($vendor['store_description'])): ?>
-                        <p class="lead"><?php echo htmlspecialchars($vendor['store_description']); ?></p>
-                        <?php endif; ?>
-                        <div class="d-flex justify-content-center gap-4 mt-3">
-                            <div>
-                                <i class="fas fa-map-marker-alt text-muted me-2"></i>
-                                <span class="text-muted">Location: <?php echo !empty($vendor['business_address']) ? htmlspecialchars($vendor['business_address']) : 'Not specified'; ?></span>
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-auto text-center text-md-start">
+                                <?php if ($has_logo): ?>
+                                    <img src="<?php echo $logo_path; ?>?v=<?php echo filemtime($logo_path); ?>" alt="Store Logo" class="img-thumbnail rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #fff;">
+                                <?php else: ?>
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white mx-auto mx-md-0 border border-4 border-white shadow-sm" style="width: 120px; height: 120px; font-size: 3rem;">
+                                        <?php echo strtoupper(substr(!empty($vendor['store_name']) ? $vendor['store_name'] : $vendor['name'], 0, 1)); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            <div>
-                                <i class="fas fa-star text-warning me-2"></i>
-                                <span class="text-muted">Rating: <?php echo $vendor['rating'] ? number_format($vendor['rating'], 1) : 'No ratings'; ?></span>
+                            <div class="col-md text-center text-md-start mt-3 mt-md-0">
+                                <h1 class="display-6 mb-1 fw-bold">
+                                    <?php echo htmlspecialchars(!empty($vendor['store_name']) ? $vendor['store_name'] : $vendor['name']); ?>
+                                </h1>
+                                <?php if(!empty($vendor['store_description'])): ?>
+                                <p class="text-muted mb-2"><?php echo htmlspecialchars($vendor['store_description']); ?></p>
+                                <?php endif; ?>
+                                
+                                <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-4">
+                                    <div>
+                                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                        <span class="text-muted"><?php echo !empty($vendor['business_address']) ? htmlspecialchars($vendor['business_address']) : 'Location not available'; ?></span>
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-star text-warning me-2"></i>
+                                        <span class="fw-bold"><?php echo $vendor['rating'] ? number_format($vendor['rating'], 1) : 'New Seller'; ?></span>
+                                    </div>
+                                    <?php if(!empty($vendor['phone'])): ?>
+                                    <div>
+                                        <i class="fas fa-phone text-primary me-2"></i>
+                                        <span class="text-muted"><?php echo htmlspecialchars($vendor['phone']); ?></span>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -50,7 +50,7 @@ if(!empty($search_query)) {
     $where_conditions[] = "(p.name LIKE '%$search_escaped%' OR p.description LIKE '%$search_escaped%' OR p.short_description LIKE '%$search_escaped%')";
 }
 
-$where_clause = !empty($where_conditions) ? "WHERE deleted_at is null and " . implode(" AND ", $where_conditions) : "WHERE deleted_at is null";
+$where_clause = !empty($where_conditions) ? "WHERE p.deleted_at is null and p.status = 'active' and " . implode(" AND ", $where_conditions) : "WHERE deleted_at is null and p.status = 'active'";
 
 // Count total products for pagination
 $count_sql = "SELECT COUNT(*) as total FROM products p $where_clause";
@@ -68,6 +68,7 @@ $products_sql = "SELECT p.*, c.name as category_name,
                  $where_clause
                  ORDER BY p.created_at DESC
                  LIMIT $limit OFFSET $offset";
+                //  echo $products_sql;
 $products_result = $conn->query($products_sql);
 ?>
 <!DOCTYPE html>
@@ -358,7 +359,7 @@ $products_result = $conn->query($products_sql);
                                 </div>
                                 <?php if($product['featured']): ?>
                                 <div class="position-absolute top-0 start-0 m-2">
-                                    <span class="badge bg-danger">Featured</span>
+                                    <span class="badge bg-danger"><i class="fas fa-star me-1"></i>Featured</span>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -407,7 +408,8 @@ $products_result = $conn->query($products_sql);
                                         name: '<?php echo addslashes($product['name']); ?>',
                                         price: <?php echo $product['price']; ?>,
                                         image: '<?php echo !empty($product['primary_image']) ? addslashes($product['primary_image']) : 'https://via.placeholder.com/100x80/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>',
-                                        vendor: '<?php echo addslashes($product['category_name'] ?? 'MarketPlace'); ?>'
+                                        vendor: '<?php echo addslashes($product['category_name'] ?? 'MarketPlace'); ?>',
+                                        stock: <?php echo $product['stock_quantity']; ?>
                                     })">
                                         <i class="fas fa-cart-plus me-2"></i>Add to Cart
                                     </button>

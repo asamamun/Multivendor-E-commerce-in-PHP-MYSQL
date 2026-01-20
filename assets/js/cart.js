@@ -94,8 +94,18 @@ if (typeof window.ShoppingCart === 'undefined') {
                 return false;
             }
             
+            const maxStock = productData.stock !== undefined ? parseInt(productData.stock) : 999999;
+            let currentQty = this.cart[id] ? this.cart[id].quantity : 0;
+            
+            if (currentQty + quantity > maxStock) {
+                this.showNotification('error', 'Out of Stock', `Only ${maxStock} items available in stock.`);
+                return false;
+            }
+            
             if (this.cart[id]) {
                 this.cart[id].quantity += quantity;
+                // Update stock info just in case it changed (though usually comes from fresh add)
+                this.cart[id].stock = maxStock;
             } else {
                 this.cart[id] = {
                     id: id,
@@ -104,6 +114,7 @@ if (typeof window.ShoppingCart === 'undefined') {
                     image: productData.image || 'https://via.placeholder.com/100x80/f8f9fa/6c757d?text=No+Image',
                     vendor: productData.vendor || 'Unknown Vendor',
                     quantity: quantity,
+                    stock: maxStock,
                     addedAt: new Date().toISOString()
                 };
             }
@@ -142,6 +153,16 @@ if (typeof window.ShoppingCart === 'undefined') {
             }
             
             if (this.cart[id]) {
+                const maxStock = this.cart[id].stock !== undefined ? parseInt(this.cart[id].stock) : 999999;
+                
+                if (quantity > maxStock) {
+                    this.showNotification('error', 'Limit Reached', `Only ${maxStock} items available in stock.`);
+                    // Reset input value if possible, or just don't update
+                    // We need to trigger a refresh to reset the UI input
+                    this.refreshCartPage();
+                    return false;
+                }
+                
                 this.cart[id].quantity = quantity;
                 this.saveCart();
                 this.refreshCartPage();

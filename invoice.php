@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $order_id = (int)$_GET['id'];
 $user_id = $_SESSION['user_id'];
-$user_role = $_SESSION['role'] ?? 'customer';
+$user_role = $_SESSION['user_role'] ?? 'customer';
 
 // Fetch Order
 $sql = "SELECT o.*, u.name as customer_name, u.email as customer_email, u.phone as customer_phone 
@@ -52,12 +52,23 @@ if (!$can_view) {
 }
 
 // Fetch Order Items
-$items_sql = "SELECT oi.*, p.sku 
+// Join users table to get vendor name for Admin view
+$items_sql = "SELECT oi.*, p.sku, u.name as vendor_name 
               FROM order_items oi 
               LEFT JOIN products p ON oi.product_id = p.id
+              LEFT JOIN users u ON oi.vendor_id = u.id
               WHERE oi.order_id = ?";
-$stmt = $conn->prepare($items_sql);
-$stmt->bind_param("i", $order_id);
+
+// If vendor, only show their items
+if ($user_role === 'vendor') {
+    $items_sql .= " AND oi.vendor_id = ?";
+    $stmt = $conn->prepare($items_sql);
+    $stmt->bind_param("ii", $order_id, $user_id);
+} else {
+    $stmt = $conn->prepare($items_sql);
+    $stmt->bind_param("i", $order_id);
+}
+
 $stmt->execute();
 $items_result = $stmt->get_result();
 $items = [];
@@ -120,6 +131,10 @@ $shipping = json_decode($order['shipping_address'], true);
                         <?php echo ucfirst($order['payment_status']); ?>
                     </span>
                     (<?php echo ucfirst($order['payment_method']); ?>)
+                    <?php if ($user_role === 'admin' && $order['payment_method'] !== 'cod' && !empty($payment['transaction_id'])): ?>
+                        <br>
+                        <small class="text-muted">TrxID: <strong><?php echo htmlspecialchars($payment['transaction_id']); ?></strong></small>
+                    <?php endif; ?>
                 </p>
             </div>
             <div class="col-6 text-end">
@@ -156,6 +171,9 @@ $shipping = json_decode($order['shipping_address'], true);
                 <tr>
                     <th>#</th>
                     <th>Product</th>
+                    <?php if ($user_role === 'admin'): ?>
+                        <th>Vendor</th>
+                    <?php endif; ?>
                     <th class="text-end">Unit Price</th>
                     <th class="text-center">Qty</th>
                     <th class="text-end">Total</th>
@@ -171,6 +189,12 @@ $shipping = json_decode($order['shipping_address'], true);
                             <br><small class="text-muted">SKU: <?php echo htmlspecialchars($item['product_sku']); ?></small>
                         <?php endif; ?>
                     </td>
+                    <?php if ($user_role === 'admin'): ?>
+                        <td>
+                            <?php echo htmlspecialchars($item['vendor_name']); ?>
+                            <br><small class="text-muted">ID: <?php echo $item['vendor_id']; ?></small>
+                        </td>
+                    <?php endif; ?>
                     <td class="text-end">৳<?php echo number_format($item['unit_price'], 2); ?></td>
                     <td class="text-center"><?php echo $item['quantity']; ?></td>
                     <td class="text-end">৳<?php echo number_format($item['total_price'], 2); ?></td>
@@ -179,15 +203,21 @@ $shipping = json_decode($order['shipping_address'], true);
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" class="text-end border-0">Subtotal</td>
+                    <?php $colspan = ($user_role === 'admin') ? 5 : 4; ?>
+                    <td colspan="<?php echo $colspan; ?>" class="text-end border-0">Subtotal</td>
                     <td class="text-end border-0">৳<?php echo number_format($order['subtotal'], 2); ?></td>
                 </tr>
                 <tr>
-                    <td colspan="4" class="text-end border-0">Shipping Cost</td>
+                    <?php $colspan = ($user_role === 'admin') ? 5 : 4; ?>
+                    <td colspan="<?php echo $colspan; ?>" class="text-end border-0">Shipping Cost</td>
                     <td class="text-end border-0">৳<?php echo number_format($order['shipping_cost'], 2); ?></td>
                 </tr>
                 <tr>
-                    <td colspan="4" class="text-end fw-bold fs-5">Total</td>
+                    <?php if ($user_role === 'admin'): ?>
+                        <td colspan="5" class="text-end fw-bold fs-5">Total</td>
+                    <?php else: ?>
+                        <td colspan="4" class="text-end fw-bold fs-5">Total</td>
+                    <?php endif; ?>
                     <td class="text-end fw-bold fs-5">৳<?php echo number_format($order['total_amount'], 2); ?></td>
                 </tr>
             </tfoot>

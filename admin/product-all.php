@@ -290,13 +290,26 @@ while ($row = $cat_result->fetch_assoc()) {
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
-                                                                <?php
+                                                                    <?php
                                                                 $badgeClass = 'secondary';
-                                                                if ($product['status'] === 'active') $badgeClass = 'success';
-                                                                elseif ($product['status'] === 'section') $badgeClass = 'warning';
-                                                                elseif ($product['status'] === 'draft') $badgeClass = 'info';
+                                                                $statusIcon = 'fa-circle'; // Default
+
+                                                                if ($product['status'] === 'active') {
+                                                                    $badgeClass = 'success';
+                                                                    $statusIcon = 'fa-check-circle';
+                                                                } elseif ($product['status'] === 'inactive') {
+                                                                    $badgeClass = 'secondary';
+                                                                    $statusIcon = 'fa-eye-slash';
+                                                                } elseif ($product['status'] === 'draft') {
+                                                                    $badgeClass = 'info';
+                                                                    $statusIcon = 'fa-pen-nib';
+                                                                } elseif ($product['status'] === 'section') {
+                                                                    $badgeClass = 'warning text-dark';
+                                                                    $statusIcon = 'fa-th-large';
+                                                                }
                                                                 ?>
                                                                 <span class="badge bg-<?php echo $badgeClass; ?>">
+                                                                    <i class="fas <?php echo $statusIcon; ?> me-1"></i>
                                                                     <?php echo ucfirst($product['status']); ?>
                                                                 </span>
                                                             </td>
