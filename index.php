@@ -37,6 +37,19 @@ if ($featured_result) {
     // Fallback or debug: Log error if needed, for now just empty array
     // error_log("Featured products query failed: " . $conn->error);
 }
+// Fetch top vendors
+$vendors_sql = "SELECT u.id, u.name, vp.store_name, vp.store_logo 
+                FROM users u
+                JOIN vendor_profiles vp ON u.id = vp.user_id
+                WHERE u.role = 'vendor' AND u.status = 'active'
+                LIMIT 6";
+$vendors_result = $conn->query($vendors_sql);
+$top_vendors = [];
+if ($vendors_result) {
+    while ($row = $vendors_result->fetch_assoc()) {
+        $top_vendors[] = $row;
+    }
+}
 /* var_dump($categories);
 exit; */
 ?>
@@ -65,32 +78,114 @@ exit; */
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        .hero-swiper {
+            width: 100%;
+            height: 500px;
+        }
+        .swiper-slide {
+            position: relative;
+            overflow: hidden;
+        }
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .hero-content-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
+            display: flex;
+            align-items: center;
+            z-index: 2;
+        }
+        .hero-text-box {
+            max-width: 600px;
+            padding: 40px;
+            color: white;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .swiper-slide-active .hero-text-box {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        .hero-desc {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .btn-premium {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-premium:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .swiper-pagination-bullet {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            opacity: 0.5;
+        }
+        .swiper-pagination-bullet-active {
+            opacity: 1;
+            width: 30px;
+            border-radius: 6px;
+        }
+        .swiper-button-next, .swiper-button-prev {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+        }
+        .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 20px;
+        }
+        @media (max-width: 768px) {
+            .hero-swiper { height: 400px; }
+            .hero-title { font-size: 2rem; }
+            .hero-desc { font-size: 1rem; }
+            .hero-content-wrapper { background: rgba(0,0,0,0.5); }
+        }
+    </style>
 </head>
 <body>
 <?php include 'inc/navbar.php'; ?>
 
-    <!-- Hero Section -->
-    <section class="hero-section bg-light py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6" data-aos="fade-right">
-                    <h1 class="display-4 fw-bold text-dark mb-4">
-                        Discover Amazing Products from Multiple Vendors
-                    </h1>
-                    <p class="lead text-muted mb-4">
-                        Shop from thousands of verified sellers and find the best deals on electronics, fashion, home & garden, and more.
-                    </p>
-                    <a href="shop.html" class="btn btn-primary btn-lg">
-                        Start Shopping <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-                <div class="col-lg-6" data-aos="fade-left">
-                    <img src="https://via.placeholder.com/600x400/6c63ff/ffffff?text=E-commerce+Hero" 
-                         class="img-fluid rounded shadow" alt="Hero Image">
-                </div>
-            </div>
+    <!-- Hero Section (Swiper Carousel) -->
+    <div class="swiper hero-swiper">
+        <div class="swiper-wrapper" id="hero-carousel-wrapper">
+            <!-- Slides will be loaded dynamically -->
         </div>
-    </section>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+        <!-- Add Navigation -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+    <!-- Hero Section end -->
 
     <!-- Categories Section -->
     <section class="py-5">
@@ -189,7 +284,9 @@ exit; */
                                 </a>
                             </h6>
                             <p class="text-muted small mb-2">
-                                <?php echo htmlspecialchars(!empty($product['store_name']) ? $product['store_name'] : $product['vendor_name']); ?>
+                                <a href="vendor.php?id=<?php echo $product['vendor_id']; ?>" class="text-decoration-none text-muted">
+                                    <i class="fas fa-store me-1"></i><?php echo htmlspecialchars(!empty($product['store_name']) ? $product['store_name'] : $product['vendor_name']); ?>
+                                </a>
                             </p>
                             
                             <div class="d-flex align-items-center mb-2">
@@ -227,6 +324,40 @@ exit; */
             <?php endif; ?>
             <div class="text-center mt-5">
                 <a href="shop.php" class="btn btn-outline-primary btn-lg">View All Products</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Top Vendors Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" data-aos="fade-up">Our Top Vendors</h2>
+            <div class="row g-4">
+                <?php foreach ($top_vendors as $v): ?>
+                <div class="col-lg-2 col-md-4 col-6" data-aos="zoom-in">
+                    <a href="vendor.php?id=<?php echo $v['id']; ?>" class="text-decoration-none text-center d-block">
+                        <div class="card border-0 shadow-sm h-100 hover-elevate">
+                            <div class="card-body">
+                                <div class="mb-3 mx-auto" style="width: 80px; height: 80px;">
+                                    <?php if ($v['store_logo']): ?>
+                                        <img src="assets/uploads/vendor/<?php echo htmlspecialchars($v['store_logo']); ?>" 
+                                             class="img-fluid rounded-circle shadow-sm w-100 h-100" style="object-fit: cover;"
+                                             alt="<?php echo htmlspecialchars($v['store_name']); ?>">
+                                    <?php else: ?>
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center w-100 h-100 text-primary fw-bold">
+                                            <?php echo strtoupper(substr($v['store_name'] ?? $v['name'], 0, 1)); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <h6 class="text-dark mb-0"><?php echo htmlspecialchars($v['store_name'] ?? $v['name']); ?></h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="text-center mt-5">
+                <a href="vendors.php" class="btn btn-outline-primary btn-lg">View All Shops</a>
             </div>
         </div>
     </section>
@@ -310,12 +441,64 @@ exit; */
     
     <!-- AOS Animation -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
     <script>
         AOS.init({
             duration: 800,
             once: true
         });
         
+        // Fetch Carousel Data
+        fetch('assets/js/carousel.json')
+            .then(response => response.json())
+            .then(data => {
+                const wrapper = document.getElementById('hero-carousel-wrapper');
+                data.forEach(slide => {
+                    const slideHTML = `
+                        <div class="swiper-slide">
+                            <img src="${slide.image}" alt="${slide.title}">
+                            <div class="hero-content-wrapper">
+                                <div class="container">
+                                    <div class="hero-text-box">
+                                        <h1 class="hero-title">${slide.title}</h1>
+                                        <p class="hero-desc">${slide.description}</p>
+                                        <a href="${slide.link}" class="btn btn-primary btn-premium">
+                                            Shop Now <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    wrapper.innerHTML += slideHTML;
+                });
+
+                // Initialize Swiper after data is loaded
+                new Swiper(".hero-swiper", {
+                    loop: true,
+                    effect: 'fade',
+                    fadeEffect: {
+                        crossFade: true
+                    },
+                    autoplay: {
+                        delay: 5000,
+                        disableOnInteraction: false,
+                    },
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
+                });
+            })
+            .catch(error => console.error('Error loading carousel:', error));
+
         // Initialize Categories Carousel
         $(document).ready(function(){
             $('.categories-carousel').owlCarousel({

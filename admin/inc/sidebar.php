@@ -16,6 +16,10 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-cogs"></i></div>
                                 Settings
                             </a>
+                            <a class="nav-link" href="manage-carousel.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-images"></i></div>
+                                Manage Carousel
+                            </a>
                             <div class="sb-sidenav-menu-heading">Interface</div>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#brandLayouts" aria-expanded="false" aria-controls="brandLayouts">
                                 <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
@@ -33,12 +37,17 @@
                                 Category
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <div class="collapse" id="categoryLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                             <div class="collapse" id="categoryLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="category-add.php">Add</a>
                                     <a class="nav-link" href="category-all.php">All</a>
                                 </nav>
                             </div>
+                            
+                            <a class="nav-link" href="vendor-all.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-users-cog"></i></div>
+                                Vendors
+                            </a>
                             
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productLayouts" aria-expanded="false" aria-controls="productLayouts">
                                 <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>

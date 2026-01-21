@@ -28,15 +28,26 @@ if($vendor_result->num_rows == 0) {
 
 $vendor = $vendor_result->fetch_assoc();
 
-// Fetch vendor's products
+// Pagination settings
+$limit = 12;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Count total products for this vendor
+$count_sql = "SELECT COUNT(*) as total FROM products WHERE vendor_id = $vendor_id AND deleted_at IS NULL AND status = 'active'";
+$count_result = $conn->query($count_sql);
+$total_products = $count_result->fetch_assoc()['total'];
+$total_pages = ceil($total_products / $limit);
+
+// Fetch vendor's products with pagination
 $products_sql = "SELECT p.*, 
                  (SELECT image_path FROM product_images WHERE product_id = p.id LIMIT 1) as primary_image,
                  (SELECT COUNT(*) FROM reviews WHERE product_id = p.id AND status = 'approved') as review_count,
                  (SELECT AVG(rating) FROM reviews WHERE product_id = p.id AND status = 'approved') as avg_rating
                  FROM products p
-                 WHERE p.vendor_id = $vendor_id
+                 WHERE p.vendor_id = $vendor_id AND p.deleted_at IS NULL AND p.status = 'active'
                  ORDER BY p.created_at DESC
-                 LIMIT 12";
+                 LIMIT $limit OFFSET $offset";
                  
 $products_result = $conn->query($products_sql);
 ?>
@@ -216,9 +227,30 @@ $products_result = $conn->query($products_sql);
                     <p class="text-muted">This vendor hasn't added any products yet.</p>
                 </div>
                 <?php endif; ?>
+                
+                <!-- Pagination -->
+                <?php if ($total_pages > 1): ?>
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <?php if ($page > 1): ?>
+                            <li class="page-item"><a class="page-link" href="?id=<?php echo $vendor_id; ?>&page=<?php echo $page - 1; ?>"><i class="fas fa-chevron-left"></i></a></li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                <a class="page-link" href="?id=<?php echo $vendor_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages): ?>
+                            <li class="page-item"><a class="page-link" href="?id=<?php echo $vendor_id; ?>&page=<?php echo $page + 1; ?>"><i class="fas fa-chevron-right"></i></a></li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
+                <?php endif; ?>
             </div>
         </div>
-    </div>
+    </section>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -26,6 +26,9 @@
                 <!-- Right Side Menu -->
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
+                        <a class="nav-link" href="vendors.php">Shops</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link position-relative" href="cart.php">
                             <i class="fas fa-shopping-cart fs-5"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge" style="display: none;">
