@@ -49,6 +49,11 @@
                                 Vendors
                             </a>
                             
+                            <a class="nav-link" href="courier-all.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-shipping-fast"></i></div>
+                                Couriers
+                            </a>
+                            
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productLayouts" aria-expanded="false" aria-controls="productLayouts">
                                 <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                                 Product

@@ -161,6 +161,7 @@ if(isset($_POST['register'])){
                                         <option value="">Select account type</option>
                                         <option value="customer" selected>Customer - I want to shop</option>
                                         <option value="vendor">Seller - I want to sell products</option>
+                                        <option value="courier">Courier - I want to deliver orders</option>
                                     </select>
                                 </div>
 

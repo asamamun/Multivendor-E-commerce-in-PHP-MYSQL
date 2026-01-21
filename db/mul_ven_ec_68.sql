@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 20, 2026 at 06:56 PM
+-- Generation Time: Jan 21, 2026 at 07:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -105,6 +105,7 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `parent_id`, `ima
 
 CREATE TABLE `couriers` (
   `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `phone` varchar(20) NOT NULL,
   `email` varchar(150) DEFAULT NULL,
@@ -116,6 +117,13 @@ CREATE TABLE `couriers` (
   `total_deliveries` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `couriers`
+--
+
+INSERT INTO `couriers` (`id`, `user_id`, `name`, `phone`, `email`, `vehicle_type`, `vehicle_number`, `coverage_areas`, `status`, `rating`, `total_deliveries`, `created_at`) VALUES
+(1, 44, 'co co', '34598475', 'co@gmail.com', 'bike', '45654654', '[\"All Dhaka\"]', 'active', 0.00, 0, '2026-01-21 12:58:58');
 
 -- --------------------------------------------------------
 
@@ -139,6 +147,15 @@ CREATE TABLE `deliveries` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `deliveries`
+--
+
+INSERT INTO `deliveries` (`id`, `order_id`, `courier_id`, `pickup_address`, `delivery_address`, `estimated_delivery`, `actual_pickup`, `actual_delivery`, `delivery_cost`, `status`, `tracking_number`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 5, 1, '[]', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', '2026-01-21 13:00:08', NULL, NULL, 60.00, 'delivered', NULL, NULL, '2026-01-21 12:59:18', '2026-01-21 13:00:08'),
+(2, 2, 1, '[]', '{\"name\":\"mamun mamun\",\"phone\":\"234534545\",\"address\":\"sadfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '2026-01-21 12:59:55', NULL, NULL, 60.00, 'picked_up', NULL, NULL, '2026-01-21 12:59:21', '2026-01-21 12:59:55'),
+(3, 1, 1, '[]', '{\"name\":\"mamun mamun\",\"phone\":\"0181234567\",\"address\":\"sdfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '2026-01-21 13:00:01', NULL, NULL, 60.00, 'delivered', NULL, NULL, '2026-01-21 12:59:25', '2026-01-21 13:00:01');
 
 -- --------------------------------------------------------
 
@@ -167,11 +184,11 @@ CREATE TABLE `orders` (
   `id` int(11) NOT NULL,
   `order_number` varchar(50) NOT NULL,
   `customer_id` int(11) NOT NULL,
-  `subtotal` decimal(10,2) NOT NULL,
+  `subtotal` decimal(13,2) NOT NULL,
   `shipping_cost` decimal(10,2) DEFAULT 0.00,
   `tax_amount` decimal(10,2) DEFAULT 0.00,
   `discount_amount` decimal(10,2) DEFAULT 0.00,
-  `total_amount` decimal(10,2) NOT NULL,
+  `total_amount` decimal(14,2) NOT NULL,
   `currency` varchar(3) DEFAULT 'BDT',
   `payment_method` enum('bkash','nagad','cod','rocket') NOT NULL,
   `payment_status` enum('pending','paid','failed','refunded') DEFAULT 'pending',
@@ -188,17 +205,17 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `order_number`, `customer_id`, `subtotal`, `shipping_cost`, `tax_amount`, `discount_amount`, `total_amount`, `currency`, `payment_method`, `payment_status`, `order_status`, `shipping_address`, `billing_address`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 'ORD-696E2C5D86EEB', 32, 26872201.00, 60.00, 0.00, 0.00, 26872261.00, 'BDT', 'bkash', 'paid', 'processing', '{\"name\":\"mamun mamun\",\"phone\":\"0181234567\",\"address\":\"sdfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '{\"name\":\"mamun mamun\",\"phone\":\"0181234567\",\"address\":\"sdfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', 'bokale asben', '2026-01-19 13:06:37', '2026-01-20 12:38:38'),
-(2, 'ORD-696E2CCE0D6FB', 32, 46279201.00, 60.00, 0.00, 0.00, 46279261.00, 'BDT', 'bkash', 'paid', 'processing', '{\"name\":\"mamun mamun\",\"phone\":\"234534545\",\"address\":\"sadfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '{\"name\":\"mamun mamun\",\"phone\":\"234534545\",\"address\":\"sadfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '', '2026-01-19 13:08:30', '2026-01-19 13:09:50'),
+(1, 'ORD-696E2C5D86EEB', 32, 26872201.00, 60.00, 0.00, 0.00, 26872261.00, 'BDT', 'bkash', 'paid', 'delivered', '{\"name\":\"mamun mamun\",\"phone\":\"0181234567\",\"address\":\"sdfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '{\"name\":\"mamun mamun\",\"phone\":\"0181234567\",\"address\":\"sdfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', 'bokale asben', '2026-01-19 13:06:37', '2026-01-21 13:00:01'),
+(2, 'ORD-696E2CCE0D6FB', 32, 46279201.00, 60.00, 0.00, 0.00, 46279261.00, 'BDT', 'bkash', 'paid', 'shipped', '{\"name\":\"mamun mamun\",\"phone\":\"234534545\",\"address\":\"sadfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '{\"name\":\"mamun mamun\",\"phone\":\"234534545\",\"address\":\"sadfdsf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '', '2026-01-19 13:08:30', '2026-01-21 12:59:21'),
 (3, 'ORD-696F4F2B81D8D', 32, 2605850.00, 60.00, 0.00, 0.00, 2605910.00, 'BDT', 'bkash', 'pending', 'pending', '{\"name\":\"mamun mamun\",\"phone\":\"018111234565\",\"address\":\"dsf sdf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '{\"name\":\"mamun mamun\",\"phone\":\"018111234565\",\"address\":\"dsf sdf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', 'asdfd d saf', '2026-01-20 09:47:23', '2026-01-20 09:47:23'),
 (4, 'ORD-696F5D87CCC59', 32, 92581.00, 60.00, 0.00, 0.00, 92641.00, 'BDT', 'cod', 'paid', 'delivered', '{\"name\":\"mamun mamun\",\"phone\":\"23432434\",\"address\":\"asdf dsfsadf sdf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', '{\"name\":\"mamun mamun\",\"phone\":\"23432434\",\"address\":\"asdf dsfsadf sdf\",\"city\":\"Dhaka\",\"zip\":\"1216\"}', 'saef sdaf', '2026-01-20 10:48:39', '2026-01-20 11:10:42'),
-(5, 'ORD-696F62E3D217C', 38, 99999999.99, 60.00, 0.00, 0.00, 99999999.99, 'BDT', 'bkash', 'pending', 'pending', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', 'asdf', '2026-01-20 11:11:31', '2026-01-20 11:11:31'),
+(5, 'ORD-696F62E3D217C', 38, 99999999.99, 60.00, 0.00, 0.00, 99999999.99, 'BDT', 'bkash', 'paid', 'delivered', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', 'asdf', '2026-01-20 11:11:31', '2026-01-21 13:00:08'),
 (6, 'ORD-696F641791FF4', 38, 175000.00, 60.00, 0.00, 0.00, 175060.00, 'BDT', 'bkash', 'paid', 'pending', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', 'skfjeiu', '2026-01-20 11:16:39', '2026-01-20 12:47:30'),
 (7, 'ORD-696F64D07B406', 38, 210000.00, 60.00, 0.00, 0.00, 210060.00, 'BDT', 'bkash', 'pending', 'pending', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', '{\"name\":\"ISDB Bishew\",\"phone\":\"01895431599\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', 'gfc', '2026-01-20 11:19:44', '2026-01-20 11:19:44'),
 (8, 'ORD-696F65E3203CB', 40, 70000.00, 60.00, 0.00, 0.00, 70060.00, 'BDT', 'bkash', 'failed', 'pending', '{\"name\":\"Asad Khan\",\"phone\":\"01895426733\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', '{\"name\":\"Asad Khan\",\"phone\":\"01895426733\",\"address\":\"kazipara\",\"city\":\"dhaka\",\"zip\":\"1215\"}', 'its emergency for me', '2026-01-20 11:24:19', '2026-01-20 12:39:04'),
 (9, 'ORD-696F775B243AB', 42, 8391.00, 60.00, 0.00, 0.00, 8451.00, 'BDT', 'cod', 'paid', 'pending', '{\"name\":\"Asad Khan\",\"phone\":\"0124285428\",\"address\":\"Barishal\",\"city\":\"barishal\",\"zip\":\"2250\"}', '{\"name\":\"Asad Khan\",\"phone\":\"0124285428\",\"address\":\"Barishal\",\"city\":\"barishal\",\"zip\":\"2250\"}', '', '2026-01-20 12:38:51', '2026-01-20 12:39:17'),
 (10, 'ORD-696F77C7197D4', 30, 428997.00, 60.00, 0.00, 0.00, 429057.00, 'BDT', 'cod', 'failed', 'pending', '{\"name\":\"Mahady Hasan\",\"phone\":\"01775394527\",\"address\":\"Savar\",\"city\":\"Dhaka\",\"zip\":\"\"}', '{\"name\":\"Mahady Hasan\",\"phone\":\"01775394527\",\"address\":\"Savar\",\"city\":\"Dhaka\",\"zip\":\"\"}', '', '2026-01-20 12:40:39', '2026-01-20 12:42:17'),
-(11, 'ORD-696F77E62E3FC', 43, 99999999.99, 60.00, 0.00, 0.00, 99999999.99, 'BDT', 'cod', 'failed', 'pending', '{\"name\":\"Shamim  Hassan\",\"phone\":\"01571717682\",\"address\":\"dhaka\",\"city\":\"mirpur\",\"zip\":\"\"}', '{\"name\":\"Shamim  Hassan\",\"phone\":\"01571717682\",\"address\":\"dhaka\",\"city\":\"mirpur\",\"zip\":\"\"}', '', '2026-01-20 12:41:10', '2026-01-20 12:41:36');
+(11, 'ORD-696F77E62E3FC', 43, 99999999.99, 60.00, 0.00, 0.00, 99999999.99, 'BDT', 'cod', 'paid', 'shipped', '{\"name\":\"Shamim  Hassan\",\"phone\":\"01571717682\",\"address\":\"dhaka\",\"city\":\"mirpur\",\"zip\":\"\"}', '{\"name\":\"Shamim  Hassan\",\"phone\":\"01571717682\",\"address\":\"dhaka\",\"city\":\"mirpur\",\"zip\":\"\"}', '', '2026-01-20 12:41:10', '2026-01-21 12:53:49');
 
 -- --------------------------------------------------------
 
@@ -214,8 +231,8 @@ CREATE TABLE `order_items` (
   `product_name` varchar(255) NOT NULL,
   `product_sku` varchar(100) DEFAULT NULL,
   `quantity` int(11) NOT NULL,
-  `unit_price` decimal(10,2) NOT NULL,
-  `total_price` decimal(10,2) NOT NULL,
+  `unit_price` decimal(13,2) NOT NULL,
+  `total_price` decimal(13,2) NOT NULL,
   `vendor_status` enum('pending','confirmed','processing','shipped','delivered','cancelled') DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -249,9 +266,9 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `vendor_id`, `product
 (23, 9, 54, 7, 'Hair Building Fibers', '7852', 1, 1870.00, 1870.00, 'pending'),
 (24, 9, 62, 7, 'Onion Oil', '7896', 1, 1670.00, 1670.00, 'pending'),
 (25, 9, 65, 7, 'Biotin Supplements', '25874', 1, 4851.00, 4851.00, 'pending'),
-(26, 10, 143, 39, 'Google pixel 10 pro xl', '64646464', 1, 154999.00, 154999.00, 'pending'),
-(27, 10, 146, 39, 'Samsung Galaxy S25 Ultra', '541787', 1, 226999.00, 226999.00, 'pending'),
-(28, 10, 148, 39, 'Honor X9d', '4654651', 1, 46999.00, 46999.00, 'pending'),
+(26, 10, 143, 39, 'Google pixel 10 pro xl', '64646464', 1, 154999.00, 154999.00, 'delivered'),
+(27, 10, 146, 39, 'Samsung Galaxy S25 Ultra', '541787', 1, 226999.00, 226999.00, 'delivered'),
+(28, 10, 148, 39, 'Honor X9d', '4654651', 1, 46999.00, 46999.00, 'delivered'),
 (29, 11, 114, 36, 'car', '4578', 4, 99999999.99, 99999999.99, 'pending'),
 (30, 11, 132, 18, 'Kids Car', '4444444', 5, 555555.00, 2777775.00, 'pending'),
 (31, 11, 141, 39, 'Sony Xperia 1 VI', '987445', 6, 30000.00, 180000.00, 'confirmed'),
@@ -312,9 +329,9 @@ CREATE TABLE `products` (
   `slug` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `short_description` varchar(500) DEFAULT NULL,
-  `price` decimal(10,2) NOT NULL,
-  `compare_price` decimal(10,2) DEFAULT NULL,
-  `cost_price` decimal(10,2) DEFAULT NULL,
+  `price` decimal(13,2) NOT NULL,
+  `compare_price` decimal(13,2) DEFAULT NULL,
+  `cost_price` decimal(13,2) DEFAULT NULL,
   `sku` varchar(100) DEFAULT NULL,
   `stock_quantity` int(11) DEFAULT 0,
   `min_stock_level` int(11) DEFAULT 5,
@@ -353,7 +370,7 @@ INSERT INTO `products` (`id`, `vendor_id`, `category_id`, `brand_id`, `name`, `s
 (54, 7, 13, NULL, 'Hair Building Fibers', 'hair-building-fibers', 'Hair building fibers are cosmetic keratin microfibers that cling to existing hair strands using static electricity to instantly make thinning hair look thicker and fuller, effectively concealing bald spots and sparse areas for both men and women. Applied by shaking or spraying onto dry hair, they bond to create volume, can be used for root touch-ups, and resist sweat and light rain, washing out with shampoo. Popular brands include Toppik, XFusion, and Caboki, available in many colors to match natural hair.', '0', 1870.00, 2200.00, 1580.00, '7852', 119, 5, 0.00, '0', 'active', 0, '0', 'ZXDF SDF', 0.00, 0, 0, '2026-01-17 12:27:51', '2026-01-20 12:38:51', NULL),
 (55, 8, 1, NULL, 'Hoco EQ2 True Wireless Bluetooth Earbuds', 'hoco-eq2-true-wireless-bluetooth-earbuds', 'Bluetooth 5.3 for seamless wireless connectivity\r\n• Hoco EQ2 TWS True Wireless in Ear Earbuds\r\n• Model: EQ2 with master-slave switching support\r\n• Long use time: 7 hours, standby time: 180 hours\r\n• Compact size: 58*49*25mm, lightweight: 50g', '0', 1500.00, 0.00, 0.00, '65646446', 50, 5, 50.00, '0', 'active', 1, '0', '', 0.00, 0, 0, '2026-01-17 12:28:02', '2026-01-20 12:34:17', '2026-01-20 12:34:17'),
 (57, 11, 1, NULL, 'Remote Control Light', 'remote-control-light', '', '0', 300.00, 0.00, 0.00, '12', 10, 5, 0.00, '0', 'active', 0, '0', '0', 0.00, 0, 0, '2026-01-17 12:28:09', '2026-01-20 09:39:49', NULL),
-(60, 22, 2, NULL, 'Nokia', 'nokia', 'user friendly button phone.', '0', 3000.00, 4500.00, 2700.00, '123', 100, 35, 0.00, '0', 'active', 0, '0', 'button phone', 0.00, 0, 0, '2026-01-17 12:29:22', '2026-01-20 09:39:49', NULL),
+(60, 22, 2, NULL, 'Nokia', 'nokia', 'user friendly button phone.', '0', 3000.00, 4500.00, 2700.00, '123', 100, 35, 0.00, '0', '', 0, '0', '0', 0.00, 0, 0, '2026-01-17 12:29:22', '2026-01-20 12:57:52', NULL),
 (61, 9, 13, NULL, 'Pilgrim hair serum', 'pilgrim-hair-serum', 'Pilgrim Hair Growth Serum is designed to promote hair growth, reduce hair fall, and improve overall hair health. It contains Redensyl, which targets hair follicles to induce new hair growth, and Anagain, derived from pea sprouts, which stimulates hair growth and prolongs the life cycle of hair follicles. The serum is suitable for all hair types and is non-greasy, making it easy to use without the need to wash it the day after application. It is also free from harsh chemicals and is vegan and cruelty-free, ensuring safe long-term use.', '0', 1500.00, 1700.00, 1200.00, '999', 8, 8, 50.00, '0', 'active', 0, '0', '', 0.00, 0, 0, '2026-01-17 12:29:29', '2026-01-20 09:39:49', NULL),
 (62, 7, 13, NULL, 'Onion Oil', 'onion-oil', 'Onion oil, rich in sulfur and nutrients, is a popular natural remedy primarily used in hair care to promote hair growth, reduce hair fall, strengthen strands, add shine, and fight dandruff by nourishing hair follicles and improving scalp health, often blended with carrier oils like coconut or almond oil and herbs like bhringraj. It\'s available commercially or can be made at home by infusing onion juice/paste with carrier oils, and it\'s also used for skin issues like blemishes due to its antibacterial properties.', '0', 1670.00, 1820.00, 1320.00, '7896', 39, 5, 0.00, '0', 'active', 0, '0', 'DFG SDF', 0.00, 0, 0, '2026-01-17 12:29:44', '2026-01-20 12:38:51', NULL),
 (63, 10, 3, NULL, 'Toyota Supra Mk5', 'toyota-supra-mk5', 'The Toyota Supra Mk5 (A90/A91) features BMW-sourced engines, primarily a 3.0L turbocharged inline-six (382 HP/368 lb-ft torque) and an available 2.0L turbo four-cylinder, paired with 8-speed auto or 6-speed manual transmissions, offering rapid 0-60 mph times (around 3.9s for the 3.0L), rear-wheel drive, Adaptive Variable Suspension, and performance-focused tech like Launch Control and active differentials, with recent models adding more power and special editions. \r\nEngine & Performance (3.0L Model)\r\nEngine: 3.0L Turbocharged Inline-6 (B58)\r\nHorsepower: Up to 382 HP (later models/Final Edition)\r\nTorque: Up to 368 lb-ft (or 369 lb-ft)\r\n0-60 mph: Around 3.9 seconds (with 3.0L)\r\nTop Speed: Electronically limited (around 155 mph / 161 mph)\r\nDrivetrain: Rear-Wheel Drive (RWD) \r\nTransmission Options\r\n8-speed ZF Automatic\r\n6-speed Manual Transmission (available in later models/Final Edition) \r\nChassis & Handling\r\nSuspension: Adaptive Variable Suspension (AVS) available\r\nFront: Independent MacPherson Strut\r\nRear: Multi-link\r\nDifferential: Active Differential (on some trims)\r\nBrakes: 4-piston Brembo (on higher trims/Final Edition) \r\nKey Features\r\nDriver Modes: Sport Mode, Launch Control\r\nTechnology: Wireless Apple CarPlay, Navigation, JBL Audio\r\nInterior: Power-adjustable sport seats, Head-Up Display (on some trims) \r\nOther Engine Option (2.0L)\r\nEngine: 2.0L Turbocharged Inline-4 (B48)\r\nPower: Around 255 HP, less weight than the 3.0L.', '0', 11000000.00, 13000000.00, 8800000.00, '23542558', 5000000, 1, 1410.00, '0', 'active', 1, '0', '0', 0.00, 0, 0, '2026-01-17 12:30:38', '2026-01-20 12:20:33', NULL),
@@ -391,9 +408,9 @@ INSERT INTO `products` (`id`, `vendor_id`, `category_id`, `brand_id`, `name`, `s
 (102, 29, 17, NULL, 'Fuler gohona', 'fuler-gohona', 'gohona by natural flowers', '0', 2580.00, 3210.00, 2200.00, '3214', -1, 5, 0.00, '0', 'active', 1, '0', '', 0.00, 0, 0, '2026-01-20 09:56:02', '2026-01-20 10:48:39', NULL),
 (104, 33, 16, NULL, 'Bat', 'bat', 'England Willow Bat', '0', 100000.00, 102000.00, 0.00, '15', 0, 5, 0.00, '0', 'active', 0, '0', 'bat, best bat in bangladesh, england bat', 0.00, 0, 0, '2026-01-20 10:06:42', '2026-01-20 10:10:27', NULL),
 (105, 29, 17, NULL, 'wholesale flowers', 'wholesale-flowers', 'all kind of natural cut flowers aupplier', '0', 1254.00, 1600.00, 1472.00, '2541', 0, 5, 0.00, '0', 'active', 0, '0', 'agargaon flowers', 0.00, 0, 0, '2026-01-20 10:07:11', '2026-01-20 10:13:54', NULL),
-(106, 10, 4, NULL, 'Mitsubishi Outlander', 'mitsubishi-outlander', 'The Mitsubishi Outlander is a versatile, mid-size SUV known for offering standard three-row seating and strong value for money compared to many rivals. The latest models are available with a petrol engine or a plug-in hybrid electric vehicle (PHEV) powertrain and come equipped with a suite of advanced safety and technology features. \r\nKey Features and Specifications (2026 Model Year)\r\nSeating Capacity: The Mitsubishi Outlander is one of the few vehicles in its class to offer standard seating for seven passengers (in a \"5+2\" configuration, with the third row best suited for children).\r\nEngine Options:\r\nPetrol: The primary engine is a 2.5-litre four-cylinder engine, which produces 181 horsepower and 181 lb-ft of torque. A new turbocharged 1.5-litre mild-hybrid (MHEV) engine is also being introduced, which aims to improve low-speed responsiveness and efficiency.\r\nPHEV: The Plug-in Hybrid EV model features electric motors on both axles and a 2.4-litre petrol engine, offering an all-electric range suitable for average commutes and powerful acceleration.\r\nDrivetrain: Front-wheel drive (FWD) is standard on base models, while Mitsubishi\'s advanced Super All-Wheel Control (S-AWC) 4WD system is available as an option or standard on higher trims.\r\nTechnology: Available features include a 12.3-inch digital driver display, a 10.8-inch Head-Up Display (HUD), wireless Apple CarPlay and Android Auto, a wireless smartphone charger, and a premium Dynamic Sound Yamaha audio system.\r\nSafety: The Outlander is equipped with comprehensive safety features as part of its Mi-TEc system, including Forward Collision Mitigation (FCM) with pedestrian detection, Blind Spot Warning (BSW), Lane Departure Warning (LDW), and Rear Automatic Emergency Braking (Rear AEB). \r\nTrim Levels\r\nThe 2026 Mitsubishi Outlander is available in several trim levels, allowing buyers to choose their desired balance of features and price. \r\nES: The base model comes well-equipped with 18-inch alloy wheels, 7-passenger seating, and a 12.3-inch Smartphone-link Display Audio system.\r\nSE: Adds features such as 20-inch two-tone alloy wheels, heated front seats, and MI-PILOT Assist, an advanced navigation-linked adaptive cruise control system.\r\nSEL: Further enhances luxury with leather-appointed seats (available with a quilted pattern), a heated steering wheel, and heated rear seats.\r\nTrail Edition: A more rugged option featuring specific visual enhancements and dedicated 18-inch black alloy wheels.\r\nRalliart: A special edition trim with rally-inspired graphics and unique body effects.\r\nPlatinum Edition/Exceed Tourer: The top-of-the-line variant offering premium semi-aniline leather seating with a massage function, a frameless digital rearview mirror, and a full 12-speaker Yamaha sound system.', '0', 4900000.00, 5200000.00, 4400000.00, '4512367', 5000000, 5, 0.00, '0', 'active', 1, '0', '0', 0.00, 0, 0, '2026-01-20 10:07:47', '2026-01-20 12:20:33', NULL);
+(106, 10, 4, NULL, 'Mitsubishi Outlander', 'mitsubishi-outlander', 'The Mitsubishi Outlander is a versatile, mid-size SUV known for offering standard three-row seating and strong value for money compared to many rivals. The latest models are available with a petrol engine or a plug-in hybrid electric vehicle (PHEV) powertrain and come equipped with a suite of advanced safety and technology features. \r\nKey Features and Specifications (2026 Model Year)\r\nSeating Capacity: The Mitsubishi Outlander is one of the few vehicles in its class to offer standard seating for seven passengers (in a \"5+2\" configuration, with the third row best suited for children).\r\nEngine Options:\r\nPetrol: The primary engine is a 2.5-litre four-cylinder engine, which produces 181 horsepower and 181 lb-ft of torque. A new turbocharged 1.5-litre mild-hybrid (MHEV) engine is also being introduced, which aims to improve low-speed responsiveness and efficiency.\r\nPHEV: The Plug-in Hybrid EV model features electric motors on both axles and a 2.4-litre petrol engine, offering an all-electric range suitable for average commutes and powerful acceleration.\r\nDrivetrain: Front-wheel drive (FWD) is standard on base models, while Mitsubishi\'s advanced Super All-Wheel Control (S-AWC) 4WD system is available as an option or standard on higher trims.\r\nTechnology: Available features include a 12.3-inch digital driver display, a 10.8-inch Head-Up Display (HUD), wireless Apple CarPlay and Android Auto, a wireless smartphone charger, and a premium Dynamic Sound Yamaha audio system.\r\nSafety: The Outlander is equipped with comprehensive safety features as part of its Mi-TEc system, including Forward Collision Mitigation (FCM) with pedestrian detection, Blind Spot Warning (BSW), Lane Departure Warning (LDW), and Rear Automatic Emergency Braking (Rear AEB). \r\nTrim Levels\r\nThe 2026 Mitsubishi Outlander is available in several trim levels, allowing buyers to choose their desired balance of features and price. \r\nES: The base model comes well-equipped with 18-inch alloy wheels, 7-passenger seating, and a 12.3-inch Smartphone-link Display Audio system.\r\nSE: Adds features such as 20-inch two-tone alloy wheels, heated front seats, and MI-PILOT Assist, an advanced navigation-linked adaptive cruise control system.\r\nSEL: Further enhances luxury with leather-appointed seats (available with a quilted pattern), a heated steering wheel, and heated rear seats.\r\nTrail Edition: A more rugged option featuring specific visual enhancements and dedicated 18-inch black alloy wheels.\r\nRalliart: A special edition trim with rally-inspired graphics and unique body effects.\r\nPlatinum Edition/Exceed Tourer: The top-of-the-line variant offering premium semi-aniline leather seating with a massage function, a frameless digital rearview mirror, and a full 12-speaker Yamaha sound system.', '0', 4900000.00, 5200000.00, 4400000.00, '4512367', 5000000, 5, 0.00, '0', 'active', 1, '0', '0', 0.00, 0, 0, '2026-01-20 10:07:47', '2026-01-20 12:20:33', NULL),
+(108, 33, 16, NULL, 'MS Dhont Bat', 'ms-dhont-bat', 'Bat', '0', 150000.00, 120000.00, 0.00, '8', 0, 5, 0.00, '0', 'active', 0, '0', 'Dhony Bat', 0.00, 0, 0, '2026-01-20 10:08:40', '2026-01-20 10:14:18', NULL);
 INSERT INTO `products` (`id`, `vendor_id`, `category_id`, `brand_id`, `name`, `slug`, `description`, `short_description`, `price`, `compare_price`, `cost_price`, `sku`, `stock_quantity`, `min_stock_level`, `weight`, `dimensions`, `status`, `featured`, `meta_title`, `meta_description`, `rating`, `review_count`, `view_count`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(108, 33, 16, NULL, 'MS Dhont Bat', 'ms-dhont-bat', 'Bat', '0', 150000.00, 120000.00, 0.00, '8', 0, 5, 0.00, '0', 'active', 0, '0', 'Dhony Bat', 0.00, 0, 0, '2026-01-20 10:08:40', '2026-01-20 10:14:18', NULL),
 (110, 33, 16, NULL, 'Helmet', 'helmet', 'Helmet', '0', 5000.00, 0.00, 0.00, '9', 0, 5, 0.00, '0', 'active', 0, '0', '0', 0.00, 0, 0, '2026-01-20 10:10:27', '2026-01-20 12:20:33', NULL),
 (111, 29, 18, NULL, 'Money bouquet', 'money-bouquet', 'bouquet made by money.', '0', 10000.00, 12000.00, 9500.00, '1245', 0, 5, 0.00, '0', 'active', 0, '0', 'gift shop in dhaka', 0.00, 0, 0, '2026-01-20 10:11:26', '2026-01-20 10:14:10', NULL),
 (112, 10, 4, NULL, 'Mitsubishi Pajero Sport', 'mitsubishi-pajero-sport', 'The Mitsubishi Pajero Sport is a rugged, 7-seater, body-on-frame SUV known for its strong off-road capabilities and value for money, though some reviewers note its interior is starting to feel dated compared to newer rivals. It is built on the same platform as the Mitsubishi Triton ute. \r\nKey Specifications (Model dependent)\r\nSpecifications can vary by market and trim level. The following are typical specifications based on recent models: \r\nEngine: 2.4L MIVEC intercooled turbo diesel, 4-cylinder.\r\nPower & Torque: Approximately 133kW (178 hp) at 3500rpm and 430Nm of torque at 2500rpm.\r\nTransmission: 8-speed automatic transmission with paddle shifters.\r\nDrivetrain: Available in both 2WD and Mitsubishi\'s \"Super Select II\" 4WD system, which can be used on sealed surfaces with an open center differential.\r\nSeating Capacity: 7 seats across three rows (some base variants offer 5 seats).\r\nTowing Capacity: Up to 3.1 tonnes (braked).\r\nGround Clearance: 218 mm.\r\nSuspension: Double wishbone front suspension and a 3-link coil spring rear suspension system for improved on-road comfort over its ute sibling. \r\nReviews and Expert Opinions\r\nOverall, the Pajero Sport is considered a dependable and capable vehicle, particularly for adventurous families or those who require genuine off-road ability. \r\nPros:\r\nValue for money: It often undercuts competitors like the Ford Everest and Toyota Fortuner while offering a strong list of features.\r\nOff-road performance: Its ladder-frame chassis, Super Select II 4WD system (with various off-road modes: Gravel, Mud/Snow, Sand, and Rock), and locking rear differential make it highly capable off-road.\r\nPracticality and Space: Reviewers praise the generous second-row space and the ability to fold down both rear rows for a cavernous, flat load space, which is great for cargo.\r\nWarranty: Mitsubishi\'s extensive 10-year conditional warranty is a significant draw.\r\nCons:\r\nRefinement and Ride: As a ute-derived SUV, it can feel \"truck-like,\" with a firm ride over rough surfaces and noticeable engine noise.\r\nDated Interior/Tech: The infotainment system and some interior elements are showing their age, with low-resolution cameras and a lack of modern features like wireless Android Auto or Apple CarPlay (in some trims).\r\nTowing Capacity: While a respectable 3.1 tonnes, its capacity is lower than some key rivals (e.g., Ford Everest) which can tow 3.5 tonnes. \r\nPurchasing Options\r\nThe Mitsubishi Pajero Sport is available for purchase in various locations, including showrooms in Dhaka. \r\nMitsubishi Motors Bangladesh Dhaka: The official dealer located at 215 Bir Uttam Mir Shawkat Sarak, Dhaka.\r\nJapan Auto Market: A dealer specializing in importing vehicles, including the Pajero Sport, located in Banani, Dhaka.', '0', 8999999.00, 9900000.00, 8000000.00, '741258', 5000000, 5, 0.00, '0', 'active', 1, '0', '0', 0.00, 0, 0, '2026-01-20 10:12:05', '2026-01-20 12:20:33', NULL),
@@ -682,7 +699,7 @@ CREATE TABLE `users` (
   `email` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `role` enum('customer','vendor','admin') DEFAULT 'customer',
+  `role` enum('customer','vendor','admin','courier') DEFAULT 'customer',
   `email_verified` tinyint(1) DEFAULT 0,
   `status` enum('active','inactive','suspended') DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -732,11 +749,12 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `email_
 (36, 'tuhin islam', 'pope@gmail.com', '$2y$10$VvZmgz4z9DjFaCw1G.h5NuKtDuikl5wZEC.VOoCEonWwKt3xypxPG', '01475525641', 'vendor', 0, 'active', '2026-01-20 10:09:46', '2026-01-20 10:09:46'),
 (37, 'jahid islam', 'kabu@gmail.com', '$2y$10$IiFSU3wSvfov36/BrzSYIuS6z/nYhbiMt6zYX3cm2Bx6eUswnsJTy', '01888877245', 'customer', 0, 'active', '2026-01-20 10:19:13', '2026-01-20 10:19:13'),
 (38, 'ISDB Bishew', 'isdb@gmail.com', '$2y$10$JjQ8cXMHlfnk.rIUaMxz.ONV7Y0k7yYVXZePyCACuSCBzLhXJSs0C', '01895431599', 'customer', 0, 'active', '2026-01-20 11:09:40', '2026-01-20 11:09:40'),
-(39, 'Asad khan', 'asadkhan3344@gmail.com', '$2y$10$ekeiDIr9cHeODQB85edJru1FTXPad7zgvhn/uXS9Pe8NNFA75MDp.', '01772353298', 'vendor', 0, 'active', '2026-01-20 11:17:53', '2026-01-20 11:17:53'),
+(39, 'Asad khan', 'asadkhan3344@gmail.com', '$2y$10$ekeiDIr9cHeODQB85edJru1FTXPad7zgvhn/uXS9Pe8NNFA75MDp.', '01772353298', 'vendor', 0, 'active', '2026-01-20 11:17:53', '2026-01-21 10:20:19'),
 (40, 'Asad Khan', 'khan@gmail.com', '$2y$10$7DwzB8RvE6A5oK5VJapRAuLCI6HwPKuox4zCmJAKrnkot2vdFbpkq', '01876521466', 'customer', 0, 'active', '2026-01-20 11:22:53', '2026-01-20 11:22:53'),
 (41, 'tuhin islam', 'tuhinislam12@gmail.com', '$2y$10$ZLT/FBeRF7X9L.sRiP4PXeAqKkdPJVqbxtTDb92z.7deveDrpV90y', '01781058284', 'customer', 0, 'active', '2026-01-20 11:37:34', '2026-01-20 11:37:34'),
 (42, 'Asad Khan', 'asadkhanwithk@gmail.com', '$2y$10$6yTmEcLpLGvAmB5Kx0DHtudsaTy252k9bybH5iK66qasacPT0y9ha', '01235425411', 'customer', 0, 'active', '2026-01-20 12:35:03', '2026-01-20 12:35:03'),
-(43, 'Shamim  Hassan', 'shamim@gmail.com', '$2y$10$x2RM8I.qmAVpCfAjNglZyOP/38y8Rf58GT4LqlYTDesj2WWT.R4hS', '01571717682', 'customer', 0, 'active', '2026-01-20 12:37:46', '2026-01-20 12:37:46');
+(43, 'Shamim  Hassan', 'shamim@gmail.com', '$2y$10$x2RM8I.qmAVpCfAjNglZyOP/38y8Rf58GT4LqlYTDesj2WWT.R4hS', '01571717682', 'customer', 0, 'active', '2026-01-20 12:37:46', '2026-01-20 12:37:46'),
+(44, 'co co', 'co@gmail.com', '$2y$10$fJ8YeXvJFkhTZfzRJFe4qevl4i5MvOLfudzjZd3YkrXhgZQnNGt1K', '34598475', 'courier', 0, 'active', '2026-01-21 12:49:45', '2026-01-21 12:52:30');
 
 -- --------------------------------------------------------
 
@@ -772,7 +790,7 @@ INSERT INTO `vendor_profiles` (`id`, `user_id`, `store_name`, `store_description
 (1, 1, 'Jhanaka Family Store', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.', '1_logo.jpg', '1_banner.png', 'Shop No# 531, Shyamoli Square Shopping Mall, (Level-5), mohammadpur Dhakaa', '436546546546546', '4567567567657657', 'Md Jhakanaka', '4565676787689879', 'ABC Bank Ltd', 'pending', 10.00, 0.00, 0.00, '2026-01-17 11:20:54'),
 (2, 7, 'Tak Somadhan', '৪টি পদ্ধতিতে হেয়ার রিপ্লেসমেন্ট করানো হয়।                                                    \r\n👍উইভিং সিস্টেম (ফিক্সড)\r\n👍 ক্লিপ সিস্টেম (লক)\r\n👍 আঠা বা গ্লু সিস্টেম\r\n👍 টেপ সিস্টেম।    \r\nBogura Hair Center  দিচ্ছে সর্বোচ্চ  সেরা সার্ভিস দানের নিশ্চয়তা, ট্রেনিং প্রাপ্ত অভিজ্ঞ টেকনিক্যাল টিম দ্বারা  সার্বক্ষণিক সেবা প্রদান করা হয়। \r\nতাই আজই চলে আসুন আমাদের অফিসে। 🤝🤝🤝\r\n🚖 পার্ক রোড (সেলিনা সাইকেল স্টোর এর তৃতীয় তলায় )সাতমাথা, বগুড়া। \r\nযোগাযোগঃ\r\n👇👇👇\r\n📞+8801710987791', '7_logo.jpg', '7_banner.jpg', 'Kazipara', '12369', '789632145', 'Tack Somadhan', '8525741963', 'Islami Bank ltd', 'pending', 10.00, 0.00, 0.00, '2026-01-17 11:58:31'),
 (3, 18, 'Bogura Bazar Family store', 'there are all item here', '18_logo.Jpg', '18_banner.png', 'Bogura', '1223', '45646546546', 'Abdulla Al Mosabbir', '45646546464', 'Abdulla Al Mosabbir', 'pending', 10.00, 0.00, 0.00, '2026-01-17 12:24:14'),
-(4, 27, 'tuhin cosmatics store', 'dgsdgsdh', '27_logo.jpg', '27_banner.jpg', 'dhaka', '', '', '', '', '', 'pending', 10.00, 0.00, 0.00, '2026-01-17 12:42:16'),
+(4, 27, 'variety car store', '', '27_logo.jpg', '27_banner.jpg', 'Kajipara ,Mirpur,Dhaka', '', '', '', '', '', 'pending', 10.00, 0.00, 0.00, '2026-01-17 12:42:16'),
 (5, 22, 'seller last', 'Hi, there! from seller last shop here you will find everything.', '22_logo.jpg', '22_banner.jpg', '', 'ashjkanf12358', '23465432123', 'last seller', '012358985675', 'LALA Bank LTD', 'pending', 10.00, 0.00, 0.00, '2026-01-17 12:43:57'),
 (6, 25, 'jahid crocaris', 'Ramgonj, Luxmipur', '25_logo.jpg', '25_banner.png', 'Zia Shophing Complex', '', '', '', '', '', 'pending', 10.00, 0.00, 0.00, '2026-01-17 12:44:16'),
 (7, 10, 'SP Motors', '\"SP Motors\"  offers luxury, sports, and performance cars, offering sales, finance, and trade-ins, with a focus on high-end brands like BMW, Audi, and Mercedes', '10_logo.jpg', '10_banner.jpg', '151/A, Jafrabad Buddhijibi (Baribad), Mohammadpur, Dhaka-1207', '45452542185', '39887544857', 'Patwary', '1020304050', 'ABC Bank', 'pending', 10.00, 0.00, 0.00, '2026-01-17 12:48:04'),
@@ -813,7 +831,8 @@ ALTER TABLE `categories`
 -- Indexes for table `couriers`
 --
 ALTER TABLE `couriers`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `deliveries`
@@ -941,13 +960,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `couriers`
 --
 ALTER TABLE `couriers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
 --
 ALTER TABLE `deliveries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -1007,7 +1026,7 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `vendor_profiles`
@@ -1031,6 +1050,12 @@ ALTER TABLE `carts`
 --
 ALTER TABLE `categories`
   ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `couriers`
+--
+ALTER TABLE `couriers`
+  ADD CONSTRAINT `couriers_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `deliveries`

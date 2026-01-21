@@ -16,6 +16,10 @@ if(isset($_SESSION['user_id'])){
         header("Location: admin/");
         exit;
     }
+    if($_SESSION['user_role'] == 'courier'){
+        header("Location: courier/");
+        exit;
+    }
 }
 
 require "inc/cookie.php";
@@ -60,6 +64,10 @@ if(isset($_POST['login'])){
             }
             if($user['role'] == 'admin'){
                 header("Location: admin/");
+                exit;
+            }
+            if($user['role'] == 'courier'){
+                header("Location: courier/");
                 exit;
             }
             
