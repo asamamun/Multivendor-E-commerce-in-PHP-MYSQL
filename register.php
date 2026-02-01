@@ -142,8 +142,11 @@ if(isset($_POST['register'])){
                                             <i class="fas fa-envelope"></i>
                                         </span>
                                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                                    
                                     </div>
                                 </div>
+                                <!-- error div -->
+                                       <div id="emailError" class=""></div>
 
                                 <div class="mb-3">
                                     
@@ -255,9 +258,18 @@ if(isset($_POST['register'])){
         </div>
     </div>
 
+    <!-- loading  spinner start-->
+     <div id="loading" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999;">
+        <div class="spinner-border text-primary" role="status" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0 auto;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <!-- loading  spinner end-->
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="assets/js/jquery-4.0.0.min.js"></script>
+    <script src="assets/js/ajax-start-stop.js"></script>
     <script>
         function togglePassword(inputId, iconId) {
             const passwordInput = document.getElementById(inputId);
@@ -284,6 +296,29 @@ if(isset($_POST['register'])){
             } else {
                 this.setCustomValidity('');
             }
+        });
+
+        $(document).ready(function () {
+            $("#email").on("blur", function () {
+                var email = $(this).val();
+                if(email.length >3){
+                $.post("apis/checkEmail.php",{em: email},function(d){
+                    console.log(d);
+                    if(d.status == "error"){
+                        $("#email").addClass("is-invalid");
+                        $("#email").removeClass("is-valid");
+                        $("#emailError").text(d.message).addClass("text-danger");
+
+                    }else{
+                        $("#email").addClass("is-valid");
+                        $("#email").removeClass("is-invalid");
+                        $("#emailError").text("").removeClass("text-danger");
+                    }
+                    
+                }, "json");
+}
+
+            })
         });
     </script>
 </body>
