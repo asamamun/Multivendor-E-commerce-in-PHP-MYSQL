@@ -40,11 +40,12 @@ $total_products = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_products / $limit);
 
 // Fetch vendor's products with pagination
-$products_sql = "SELECT p.*, 
+$products_sql = "SELECT p.*,c.name as category_name, 
                  (SELECT image_path FROM product_images WHERE product_id = p.id LIMIT 1) as primary_image,
                  (SELECT COUNT(*) FROM reviews WHERE product_id = p.id AND status = 'approved') as review_count,
                  (SELECT AVG(rating) FROM reviews WHERE product_id = p.id AND status = 'approved') as avg_rating
                  FROM products p
+                 LEFT JOIN categories c ON p.category_id = c.id                
                  WHERE p.vendor_id = $vendor_id AND p.deleted_at IS NULL AND p.status = 'active'
                  ORDER BY p.created_at DESC
                  LIMIT $limit OFFSET $offset";
@@ -211,7 +212,13 @@ $products_result = $conn->query($products_sql);
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="h6 text-primary mb-0">৳<?php echo number_format($product['price'], 2); ?></span>
-                                    <button class="btn btn-primary btn-sm" onclick="addToCart(<?php echo $product['id']; ?>)">
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(<?php echo $product['id']; ?>, {
+                                        name: '<?php echo addslashes($product['name']); ?>',
+                                        price: <?php echo $product['price']; ?>,
+                                        image: '<?php echo !empty($product['primary_image']) ? addslashes($product['primary_image']) : 'https://via.placeholder.com/100x80/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>',
+                                        vendor: '<?php echo $product['category_name']; ?>',
+                                        stock: <?php echo $product['stock_quantity']; ?>
+                                    })">
                                         <i class="fas fa-cart-plus"></i>
                                     </button>
                                 </div>
@@ -255,12 +262,8 @@ $products_result = $conn->query($products_sql);
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <script>
-        // Add to cart function
-        function addToCart(productId) {
-            // Add your cart logic here
-            alert('Added to cart: Product ID ' + productId);
-        }
-    </script>
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/cart-init.js"></script>
+    <script src="assets/js/cart-fx.js"></script>
 </body>
 </html>

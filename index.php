@@ -15,13 +15,14 @@ while ($row = $categories_result->fetch_assoc()) {
 }
 
 // Fetch featured products
-$featured_sql = "SELECT p.*, 
+$featured_sql = "SELECT p.*, c.name as category_name,
                  u.name as vendor_name, 
                  vp.store_name,
                  (SELECT image_path FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, sort_order ASC LIMIT 1) as image_path,
                  (SELECT COUNT(*) FROM reviews WHERE product_id = p.id AND status = 'approved') as review_count,
                  (SELECT AVG(rating) FROM reviews WHERE product_id = p.id AND status = 'approved') as avg_rating
                  FROM products p
+                 LEFT JOIN categories c ON p.category_id = c.id
                  LEFT JOIN users u ON p.vendor_id = u.id
                  LEFT JOIN vendor_profiles vp ON u.id = vp.user_id
                  WHERE p.status = 'active' AND p.featured = 1 AND p.deleted_at IS NULL
@@ -308,7 +309,13 @@ exit; */
                                         <small class="text-muted text-decoration-line-through ms-1">৳<?php echo number_format($product['compare_price'], 2); ?></small>
                                     <?php endif; ?>
                                 </div>
-                                <button class="btn btn-outline-primary btn-sm rounded-circle" onclick="addToCart(<?php echo $product['id']; ?>)" title="Add to Cart">
+                                <button class="btn btn-outline-primary btn-sm rounded-circle" onclick="addToCart(<?php echo $product['id']; ?>, {
+                                        name: '<?php echo addslashes($product['name']); ?>',
+                                        price: <?php echo $product['price']; ?>,
+                                        image: '<?php echo !empty($product['primary_image']) ? addslashes($product['primary_image']) : 'https://via.placeholder.com/100x80/f8f9fa/6c757d?text=' . urlencode($product['name']); ?>',
+                                        vendor: '<?php echo $product['category_name']; ?>',
+                                        stock: <?php echo $product['stock_quantity']?? 0; ?>
+                                    })" title="Add to Cart">
                                     <i class="fas fa-cart-plus"></i>
                                 </button>
                             </div>
@@ -444,6 +451,10 @@ exit; */
     
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- cart files -->
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/cart-init.js"></script>
+    <script src="assets/js/cart-fx.js"></script>
     
     <script>
         AOS.init({
