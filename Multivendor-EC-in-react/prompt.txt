@@ -1,0 +1,20 @@
+we have our backend APIs in backend dir in PHP-MYSQL. database is in backend>db>mul_ven_ec_68.sql.
+for our multivendor ecommerce project we need a frontend in react where the app can handle:
+-registration
+-login
+-session management with token from backend
+-products and shops links to view products and vendor shops with pagination.
+-product-details page
+-shop wise product view
+-cart management with local storage support
+-order process for customer
+-show order lists
+-a customer dashboard should manitain.
+-no vendor or admin dashboard needed in the APP. only implement for customer POV.
+
+-assets(images) base url is: http://localhost/round68/reactJS/projects/Multivendor-E-commerce-in-PHP-MYSQL/
+-API base url is : http://localhost/round68/reactJS/projects/backend/apis/
+
+use AOS or other package for animation with image zoom, tosatify for notification. bootstrap for CSS.
+
+for your convenience i have added the monolithic project in  Multivendor-E-commerce-in-PHP-MYSQL dir. your tassk is to implement the react part in Multivendor-EC-in-react dir.
