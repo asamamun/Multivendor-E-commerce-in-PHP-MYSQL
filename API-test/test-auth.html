@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auth Tests - MarketPlace API</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>🔐 Auth Endpoints</h1>
+    <p>Test register and login endpoints</p>
+</header>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="test-auth.html" class="active">Auth</a>
+    <a href="test-products.html">Products</a>
+    <a href="test-shops.html">Shops</a>
+    <a href="test-orders.html">Orders</a>
+</nav>
+<div class="container">
+    <div class="token-bar">
+        <strong>Token:</strong>
+        <span id="token-display">None</span>
+        <button class="danger" onclick="Auth.clear(); location.reload();" style="margin-top:0;padding:5px 12px;">Clear</button>
+    </div>
+
+    <div class="grid">
+        <!-- Register -->
+        <div class="card">
+            <span class="badge post">POST</span>
+            <h2>/apis/register.php</h2>
+
+            <label>Name</label>
+            <input id="reg-name" value="Test User" />
+
+            <label>Email</label>
+            <input id="reg-email" type="email" value="testuser@example.com" />
+
+            <label>Phone</label>
+            <input id="reg-phone" value="01700000000" />
+
+            <label>Password</label>
+            <input id="reg-pass" type="password" value="password123" />
+
+            <label>Role</label>
+            <select id="reg-role">
+                <option value="customer">customer</option>
+                <option value="vendor">vendor</option>
+                <option value="courier">courier</option>
+            </select>
+
+            <button onclick="testRegister()">Register</button>
+            <div class="output" id="reg-output"></div>
+        </div>
+
+        <!-- Login -->
+        <div class="card">
+            <span class="badge post">POST</span>
+            <h2>/apis/login.php</h2>
+
+            <label>Email</label>
+            <input id="login-email" type="email" value="testuser@example.com" />
+
+            <label>Password</label>
+            <input id="login-pass" type="password" value="password123" />
+
+            <button onclick="testLogin()">Login</button>
+            <div class="output" id="login-output"></div>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+    // Show current token
+    const t = Auth.getToken();
+    document.getElementById('token-display').textContent = t ? t.substring(0, 60) + '...' : 'None';
+
+    async function testRegister() {
+        const result = await apiFetch('register.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name:     document.getElementById('reg-name').value,
+                email:    document.getElementById('reg-email').value,
+                phone:    document.getElementById('reg-phone').value,
+                password: document.getElementById('reg-pass').value,
+                role:     document.getElementById('reg-role').value,
+            })
+        });
+        if (result.data?.data?.token) {
+            Auth.setToken(result.data.data.token);
+        }
+        log('reg-output', 'POST /register', result);
+    }
+
+    async function testLogin() {
+        const result = await apiFetch('login.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email:    document.getElementById('login-email').value,
+                password: document.getElementById('login-pass').value,
+            })
+        });
+        if (result.data?.data?.token) {
+            Auth.setToken(result.data.data.token);
+            document.getElementById('token-display').textContent = result.data.data.token.substring(0, 60) + '...';
+        }
+        log('login-output', 'POST /login', result);
+    }
+</script>
+</body>
+</html>

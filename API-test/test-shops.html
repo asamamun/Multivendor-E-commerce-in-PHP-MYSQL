@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shops Tests - MarketPlace API</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>🏪 Shops Endpoint</h1>
+    <p>Test shop list and single shop with vendor-wise products</p>
+</header>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="test-auth.html">Auth</a>
+    <a href="test-products.html">Products</a>
+    <a href="test-shops.html" class="active">Shops</a>
+    <a href="test-orders.html">Orders</a>
+</nav>
+<div class="container">
+    <div class="grid">
+        <!-- Shop list -->
+        <div class="card">
+            <span class="badge get">GET</span>
+            <h2>/apis/shops.php — Shop List</h2>
+
+            <label>Page</label>
+            <input id="s-page" type="number" value="1" />
+
+            <label>Limit</label>
+            <input id="s-limit" type="number" value="6" />
+
+            <label>Search (optional)</label>
+            <input id="s-search" placeholder="store name..." />
+
+            <button onclick="testShops()">Fetch Shops</button>
+            <div class="output" id="shops-output"></div>
+        </div>
+
+        <!-- Single shop -->
+        <div class="card">
+            <span class="badge get">GET</span>
+            <h2>/apis/shops.php?id=X — Single Shop</h2>
+
+            <label>Vendor ID</label>
+            <input id="shop-id" type="number" value="10" />
+
+            <button onclick="testSingleShop()">Fetch Shop</button>
+            <div class="output" id="single-shop-output"></div>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+    async function testShops() {
+        const page   = document.getElementById('s-page').value;
+        const limit  = document.getElementById('s-limit').value;
+        const search = document.getElementById('s-search').value;
+        const params = new URLSearchParams({ page, limit });
+        if (search) params.set('search', search);
+        const result = await apiFetch(`shops.php?${params}`);
+        log('shops-output', `GET /shops?${params}`, result);
+    }
+
+    async function testSingleShop() {
+        const id = document.getElementById('shop-id').value;
+        const result = await apiFetch(`shops.php?id=${id}`);
+        log('single-shop-output', `GET /shops?id=${id}`, result);
+    }
+</script>
+</body>
+</html>

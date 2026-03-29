@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Orders Tests - MarketPlace API</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>🧾 Orders Endpoint</h1>
+    <p>Requires a valid Bearer token — login first via the Auth page</p>
+</header>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="test-auth.html">Auth</a>
+    <a href="test-products.html">Products</a>
+    <a href="test-shops.html">Shops</a>
+    <a href="test-orders.html" class="active">Orders</a>
+</nav>
+<div class="container">
+    <div class="token-bar">
+        <strong>Token:</strong>
+        <span id="token-display">None — login first</span>
+    </div>
+
+    <div class="grid">
+        <!-- Order history -->
+        <div class="card">
+            <span class="badge get">GET</span>
+            <h2>/apis/orders.php — My Orders</h2>
+
+            <label>Page</label>
+            <input id="o-page" type="number" value="1" />
+
+            <label>Limit</label>
+            <input id="o-limit" type="number" value="5" />
+
+            <button onclick="testOrderList()">Fetch My Orders</button>
+            <div class="output" id="orders-output"></div>
+        </div>
+
+        <!-- Single order -->
+        <div class="card">
+            <span class="badge get">GET</span>
+            <h2>/apis/orders.php?id=X — Order Detail</h2>
+
+            <label>Order ID</label>
+            <input id="order-id" type="number" value="1" />
+
+            <button onclick="testOrderDetail()">Fetch Order</button>
+            <div class="output" id="order-detail-output"></div>
+        </div>
+
+        <!-- Place order -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <span class="badge post">POST</span>
+            <h2>/apis/orders.php — Place Order</h2>
+
+            <label>Items JSON (array of {product_id, quantity})</label>
+            <textarea id="order-items">[
+  { "product_id": 31, "quantity": 1 },
+  { "product_id": 47, "quantity": 2 }
+]</textarea>
+
+            <label>Shipping Address JSON</label>
+            <textarea id="order-address">{
+  "name": "Test Customer",
+  "phone": "01700000000",
+  "address": "123 Test Street",
+  "city": "Dhaka",
+  "zip": "1216"
+}</textarea>
+
+            <label>Payment Method</label>
+            <select id="order-payment">
+                <option value="cod">cod</option>
+                <option value="bkash">bkash</option>
+                <option value="nagad">nagad</option>
+                <option value="rocket">rocket</option>
+            </select>
+
+            <label>Notes (optional)</label>
+            <input id="order-notes" placeholder="Any special instructions..." />
+
+            <button onclick="testPlaceOrder()">Place Order</button>
+            <div class="output" id="place-order-output"></div>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+    const t = Auth.getToken();
+    document.getElementById('token-display').textContent = t ? t.substring(0, 60) + '...' : 'None — login first';
+
+    async function testOrderList() {
+        const page  = document.getElementById('o-page').value;
+        const limit = document.getElementById('o-limit').value;
+        const result = await apiFetch(`orders.php?page=${page}&limit=${limit}`, {
+            headers: Auth.headers()
+        });
+        log('orders-output', 'GET /orders', result);
+    }
+
+    async function testOrderDetail() {
+        const id = document.getElementById('order-id').value;
+        const result = await apiFetch(`orders.php?id=${id}`, {
+            headers: Auth.headers()
+        });
+        log('order-detail-output', `GET /orders?id=${id}`, result);
+    }
+
+    async function testPlaceOrder() {
+        let items, address;
+        try {
+            items   = JSON.parse(document.getElementById('order-items').value);
+            address = JSON.parse(document.getElementById('order-address').value);
+        } catch (e) {
+            alert('Invalid JSON in items or address field');
+            return;
+        }
+
+        const result = await apiFetch('orders.php', {
+            method: 'POST',
+            headers: Auth.headers(),
+            body: JSON.stringify({
+                items:            items,
+                shipping_address: address,
+                payment_method:   document.getElementById('order-payment').value,
+                notes:            document.getElementById('order-notes').value,
+            })
+        });
+        log('place-order-output', 'POST /orders', result);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Products Tests - MarketPlace API</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>📦 Products Endpoint</h1>
+    <p>Test paged product list, category filter, vendor filter, and search</p>
+</header>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="test-auth.html">Auth</a>
+    <a href="test-products.html" class="active">Products</a>
+    <a href="test-shops.html">Shops</a>
+    <a href="test-orders.html">Orders</a>
+</nav>
+<div class="container">
+    <div class="grid">
+        <!-- Paged list -->
+        <div class="card">
+            <span class="badge get">GET</span>
+            <h2>/apis/products.php — Paged List</h2>
+
+            <label>Page</label>
+            <input id="p-page" type="number" value="1" min="1" />
+
+            <label>Limit</label>
+            <input id="p-limit" type="number" value="6" min="1" max="50" />
+
+            <label>Category ID (optional)</label>
+            <input id="p-cat" type="number" placeholder="e.g. 1" />
+
+            <label>Search keyword (optional)</label>
+            <input id="p-search" placeholder="e.g. phone" />
+
+            <label>Featured only?</label>
+            <select id="p-featured">
+                <option value="">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <button onclick="testProducts()">Fetch Products</button>
+            <div class="output" id="products-output"></div>
+        </div>
+
+        <!-- Vendor-wise products -->
+        <div class="card">
+            <span class="badge get">GET</span>
+            <h2>/apis/products.php — Vendor-wise</h2>
+
+            <label>Vendor ID</label>
+            <input id="vp-vendor" type="number" value="10" />
+
+            <label>Page</label>
+            <input id="vp-page" type="number" value="1" />
+
+            <label>Limit</label>
+            <input id="vp-limit" type="number" value="6" />
+
+            <button onclick="testVendorProducts()">Fetch Vendor Products</button>
+            <div class="output" id="vendor-products-output"></div>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+    async function testProducts() {
+        const page     = document.getElementById('p-page').value;
+        const limit    = document.getElementById('p-limit').value;
+        const category = document.getElementById('p-cat').value;
+        const search   = document.getElementById('p-search').value;
+        const featured = document.getElementById('p-featured').value;
+
+        const params = new URLSearchParams({ page, limit });
+        if (category) params.set('category', category);
+        if (search)   params.set('search', search);
+        if (featured) params.set('featured', featured);
+
+        const result = await apiFetch(`products.php?${params}`);
+        log('products-output', `GET /products?${params}`, result);
+    }
+
+    async function testVendorProducts() {
+        const vendor = document.getElementById('vp-vendor').value;
+        const page   = document.getElementById('vp-page').value;
+        const limit  = document.getElementById('vp-limit').value;
+        const params = new URLSearchParams({ vendor, page, limit });
+        const result = await apiFetch(`products.php?${params}`);
+        log('vendor-products-output', `GET /products?${params}`, result);
+    }
+</script>
+</body>
+</html>

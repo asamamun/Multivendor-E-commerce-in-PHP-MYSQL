@@ -1,0 +1,14 @@
+this project is monolightic. but we want to make frontend in react for this project. in that case, it will/should work as distributed app also. so, we need API endpoints for: 
+registration, 
+login,
+paged product list, 
+shops list,
+shopwise/vendorwise products,
+place order,
+customers all previous orders.
+
+so, we need to make API endpoints in PHP so that react can hit the endpoints. there is an APIS dir in this project with two files. we need to create API files in this dir. data will be interchanged in JSON format.
+
+another dir API-test to test the API endpoints if needed. create it and check the implementation. do not delete the test files so that we can fetch with pure JS fetch methods for every endpoints
+
+the database is in DB dir named mul_ven_ec_68.sql
