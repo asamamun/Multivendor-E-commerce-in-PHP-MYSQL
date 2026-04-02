@@ -9,6 +9,7 @@ const STATUS_COLORS = {
   shipped: 'primary', delivered: 'success', cancelled: 'danger', returned: 'secondary',
 };
 
+
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [pagination, setPagination] = useState({});
