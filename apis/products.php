@@ -15,6 +15,34 @@ require __DIR__ . '/../db/db.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     respond_error('Method not allowed', 405);
 }
+// Single product detail
+if (isset($_GET['id'])) {
+    $product_id = (int)$_GET['id'];
+    $stmt = $conn->prepare(
+        "SELECT p.*, c.name AS category_name, u.name AS vendor_name, u.id AS vendor_id
+         FROM products p
+         LEFT JOIN categories c ON p.category_id = c.id
+         LEFT JOIN users u ON p.vendor_id = u.id
+         WHERE p.id = ? AND p.status = 'active' AND p.deleted_at IS NULL"
+    );
+    $stmt->bind_param('i', $product_id);
+    $stmt->execute();
+    $product = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if (!$product) respond_error('Product not found', 404);
+
+    // Fetch all images
+    $img_stmt = $conn->prepare("SELECT image_path, is_primary, sort_order FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, sort_order ASC");
+    $img_stmt->bind_param('i', $product_id);
+    $img_stmt->execute();
+    $product['images'] = $img_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $img_stmt->close();
+
+    // Primary image
+    $product['primary_image'] = $product['images'][0]['image_path'] ?? null;
+
+    respond_success(['product' => $product]);
+}
 
 $page     = max(1, (int)($_GET['page']  ?? 1));
 $limit    = min(50, max(1, (int)($_GET['limit'] ?? 12)));
