@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AOS from 'aos';
 import { useCart } from '../context/CartContext';
@@ -31,22 +31,35 @@ export default function ProductDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const handleAddToCart = useCallback(() => {
+    if (product) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: parseFloat(product.price),
+        image: mainImg || product.primary_image,
+        vendor: product.vendor_name,
+      }, qty);
+    }
+  }, [product, mainImg, qty, addToCart]);
+
+  const discount = useMemo(() => {
+    if (!product) return 0;
+    return product.compare_price > product.price
+      ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100)
+      : 0;
+  }, [product]);
+
+  const incrementQty = useCallback(() => {
+    setQty(q => Math.min(product.stock_quantity, q + 1));
+  }, [product]);
+
+  const decrementQty = useCallback(() => {
+    setQty(q => Math.max(1, q - 1));
+  }, []);
+
   if (loading) return <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>;
   if (!product) return <div className="container py-5 text-center text-muted">Product not found.</div>;
-
-  const discount = product.compare_price > product.price
-    ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100)
-    : 0;
-
-  const handleAddToCart = () => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: parseFloat(product.price),
-      image: mainImg || product.primary_image,
-      vendor: product.vendor_name,
-    }, qty);
-  };
 
   return (
     <div className="container py-5">
@@ -134,9 +147,9 @@ export default function ProductDetail() {
           {/* Qty + Cart */}
           <div className="d-flex align-items-center gap-3 mb-4">
             <div className="input-group" style={{ width: '130px' }}>
-              <button className="btn btn-outline-secondary" onClick={() => setQty(q => Math.max(1, q - 1))}>-</button>
+              <button className="btn btn-outline-secondary" onClick={decrementQty}>-</button>
               <input type="number" className="form-control text-center" value={qty} readOnly />
-              <button className="btn btn-outline-secondary" onClick={() => setQty(q => Math.min(product.stock_quantity, q + 1))}>+</button>
+              <button className="btn btn-outline-secondary" onClick={incrementQty}>+</button>
             </div>
             <button
               className="btn btn-primary btn-lg flex-grow-1"

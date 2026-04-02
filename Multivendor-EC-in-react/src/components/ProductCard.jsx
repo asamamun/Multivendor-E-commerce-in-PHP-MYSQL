@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { imgUrl } from '../config';
+import { memo, useCallback } from 'react';
 
-export default function ProductCard({ product }) {
+const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
 
-  const handleAdd = (e) => {
+  const handleAdd = useCallback((e) => {
     e.preventDefault();
     addToCart({
       id: product.id,
@@ -14,7 +15,7 @@ export default function ProductCard({ product }) {
       image: product.primary_image,
       vendor: product.vendor_name,
     });
-  };
+  }, [product, addToCart]);
 
   const discount = product.compare_price > product.price
     ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100)
@@ -66,4 +67,6 @@ export default function ProductCard({ product }) {
       </div>
     </div>
   );
-}
+};
+
+export default memo(ProductCard);

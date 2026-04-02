@@ -1,4 +1,6 @@
-export default function Pagination({ page, totalPages, onPageChange }) {
+import { memo } from 'react';
+
+const Pagination = ({ page, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
   const pages = [];
@@ -39,4 +41,6 @@ export default function Pagination({ page, totalPages, onPageChange }) {
       </ul>
     </nav>
   );
-}
+};
+
+export default memo(Pagination);

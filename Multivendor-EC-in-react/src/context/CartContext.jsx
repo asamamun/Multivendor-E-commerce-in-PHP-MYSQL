@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'react-toastify';
 
 const CartContext = createContext(null);
@@ -16,7 +16,7 @@ export function CartProvider({ children }) {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product, qty = 1) => {
+  const addToCart = useCallback((product, qty = 1) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === product.id);
       if (existing) {
@@ -26,25 +26,35 @@ export function CartProvider({ children }) {
       toast.success(`${product.name} added to cart`);
       return [...prev, { ...product, qty }];
     });
-  };
+  }, []);
 
-  const removeFromCart = (id) => {
+  const removeFromCart = useCallback((id) => {
     setCart(prev => prev.filter(i => i.id !== id));
     toast.info('Item removed from cart');
-  };
+  }, []);
 
-  const updateQty = (id, qty) => {
+  const updateQty = useCallback((id, qty) => {
     if (qty < 1) return removeFromCart(id);
     setCart(prev => prev.map(i => i.id === id ? { ...i, qty } : i));
-  };
+  }, [removeFromCart]);
 
-  const clearCart = () => setCart([]);
+  const clearCart = useCallback(() => setCart([]), []);
 
-  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  const count = cart.reduce((sum, i) => sum + i.qty, 0);
+  const total = useMemo(() => cart.reduce((sum, i) => sum + i.price * i.qty, 0), [cart]);
+  const count = useMemo(() => cart.reduce((sum, i) => sum + i.qty, 0), [cart]);
+
+  const value = useMemo(() => ({ 
+    cart, 
+    addToCart, 
+    removeFromCart, 
+    updateQty, 
+    clearCart, 
+    total, 
+    count 
+  }), [cart, addToCart, removeFromCart, updateQty, clearCart, total, count]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, clearCart, total, count }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

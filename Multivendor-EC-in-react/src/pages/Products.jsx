@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AOS from 'aos';
 import api from '../api/api';
@@ -27,6 +27,10 @@ export default function Products() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [page, search]);
+
+  const sortedProducts = useMemo(() => {
+    return [...products].sort((a, b) => a.id - b.id);
+  }, [products]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -57,12 +61,12 @@ export default function Products() {
       ) : (
         <>
           <div className="row g-3">
-            {products.map(p => (
+            {sortedProducts.map(p => (
               <div key={p.id} className="col-6 col-md-4 col-lg-3">
                 <ProductCard product={p} />
               </div>
             ))}
-            {products.length === 0 && (
+            {sortedProducts.length === 0 && (
               <div className="col-12 text-center py-5 text-muted">
                 <i className="fas fa-box-open fa-3x mb-3"></i>
                 <p>No products found.</p>

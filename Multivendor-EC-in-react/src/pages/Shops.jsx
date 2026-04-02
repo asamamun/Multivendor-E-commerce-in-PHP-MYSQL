@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AOS from 'aos';
 import api from '../api/api';
@@ -27,6 +27,10 @@ export default function Shops() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [page, search]);
+
+  const sortedShops = useMemo(() => {
+    return [...shops].sort((a, b) => a.vendor_id - b.vendor_id);
+  }, [shops]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -57,7 +61,7 @@ export default function Shops() {
       ) : (
         <>
           <div className="row g-3">
-            {shops.map(shop => (
+            {sortedShops.map(shop => (
               <div key={shop.vendor_id} className="col-sm-6 col-md-4 col-lg-3" data-aos="fade-up">
                 <Link to={`/shops/${shop.vendor_id}`} className="text-decoration-none">
                   <div className="card h-100 border-0 shadow-sm text-center p-3 shop-card">
@@ -85,7 +89,7 @@ export default function Shops() {
                 </Link>
               </div>
             ))}
-            {shops.length === 0 && (
+            {sortedShops.length === 0 && (
               <div className="col-12 text-center py-5 text-muted">
                 <i className="fas fa-store-slash fa-3x mb-3"></i>
                 <p>No shops found.</p>

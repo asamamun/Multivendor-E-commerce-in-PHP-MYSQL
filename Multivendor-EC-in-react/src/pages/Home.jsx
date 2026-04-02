@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import AOS from 'aos';
 import api from '../api/api';
@@ -15,6 +15,10 @@ export default function Home() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const sortedFeatured = useMemo(() => {
+    return [...featured].sort((a, b) => a.id - b.id);
+  }, [featured]);
 
   return (
     <>
@@ -74,12 +78,12 @@ export default function Home() {
             <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
           ) : (
             <div className="row g-3">
-              {featured.map(p => (
+              {sortedFeatured.map(p => (
                 <div key={p.id} className="col-6 col-md-4 col-lg-3">
                   <ProductCard product={p} />
                 </div>
               ))}
-              {featured.length === 0 && (
+              {sortedFeatured.length === 0 && (
                 <p className="text-muted text-center">No featured products yet.</p>
               )}
             </div>
